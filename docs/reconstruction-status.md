@@ -14,7 +14,7 @@
 | 數值一致性 | 部分程序／固定樣本逐欄核對 | 以 `validation.md` 的實測欄位和容忍度為準，不提升成整項程序相容 |
 | SPSS 全部算法與選項 | 未完成 | 加權、使用者缺失、SPLIT FILE、分類變數建模、GLM/混合/存活/時間序列等仍需分程序實作與驗證 |
 | 結果結構與呈現一致 | 未完成 | 現有獨立表格與圖；SPSS pivot 層級、註腳、小數位、值標籤、圖形樣式與 SPV 格式未重建 |
-| 多電腦分發 | 已準備程式碼與安裝腳本 | 固定依賴、回歸測試、Git ignore、GitHub Windows CI 設定；未執行遠端推送 |
+| 多電腦分發 | 已上傳私人 GitHub 儲存庫 | [statstudio-ai](https://github.com/benny10030671-commits/statstudio-ai)；固定依賴、回歸測試、安裝腳本與 GitHub Windows CI 設定；每台電腦仍需自行安裝環境 |
 
 ## 逐項驗收規格
 

@@ -57,7 +57,17 @@
 
 專案不包含 IBM 執行檔、DLL、JAR、私有資料或授權資訊。`docs/command-catalog.json` 是本機語法宣告的結構盤點，並不是 IBM 原始碼或算法實作。`tests/fixtures` 只放人工合成資料。
 
-可在自己的 GitHub 建立 **private** 儲存庫後推送此專案；目前不假定你的 GitHub 帳號或遠端網址。每台電腦 `git clone` 後執行 `setup.cmd` 及 `connect-ai.cmd`。更新時先 `git pull`，再執行 `setup.cmd`。
+私人儲存庫：[benny10030671-commits/statstudio-ai](https://github.com/benny10030671-commits/statstudio-ai)。另一台電腦登入有權限的 GitHub 帳號後，執行：
+
+```powershell
+git clone https://github.com/benny10030671-commits/statstudio-ai.git
+cd statstudio-ai
+.\setup.cmd
+.\connect-ai.cmd
+.\start.cmd
+```
+
+也可從 GitHub 的 **Code → Download ZIP** 下載、解壓縮，再雙擊相同的安裝與啟動檔。更新時先 `git pull`，再執行 `setup.cmd`。每台電腦各自設定 Codex MCP，因為 Python 路徑不同。
 
 `.gitignore` 排除環境、私人資料、結果及秘密設定。**GitHub 同步程式碼，不會自動同步 `.statstudio` 資料與報告。** 若要在其他電腦重現，同步經你選定的資料檔及分析 JSON，再匯入同一資料。
 
