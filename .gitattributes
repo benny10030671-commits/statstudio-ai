@@ -1,2 +1,4 @@
 # Preserve bytes for source/fixture SHA-256 provenance on every computer.
-* -text
+* -text whitespace=cr-at-eol
+# Oracle files are original evidence; their whitespace must remain untouched.
+validation/spss30/** -whitespace

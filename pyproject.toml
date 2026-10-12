@@ -28,4 +28,3 @@ statstudio = ["static/*", "resources/*"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-

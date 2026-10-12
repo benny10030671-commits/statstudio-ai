@@ -80,4 +80,3 @@ def build_mcp(root=None):
         return result
 
     return mcp
-

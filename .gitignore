@@ -20,4 +20,3 @@ local-data/
 !tests/fixtures/*.sps
 !validation/*.sps
 !validation/**/*.sps
-
