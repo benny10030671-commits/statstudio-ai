@@ -1,6 +1,22 @@
 # StatStudio AI
 
-繁體中文的本機統計工具，可由 Codex 透過 MCP 操作。計算使用獨立 Python 引擎，**不需要安裝、啟動或授權 SPSS**。
+繁體中文的本機統計工具。這個 `feat/spss-ai-research-assistant` 分支新增 **Codex / Claude Code → Python → 本機 SPSS** 的研究助理；原有獨立 Python 引擎仍保留。
+
+## 新分支：從想法到 SPSS 研究報告
+
+直接告訴 AI：「我想研究什麼？」它會釐清設計、告訴你要準備哪些資料、建議統計方法、產生資料範本，再檢查資料並執行 SPSS。最後讀取原生數值與圖像，另存有來源引用的解讀報告。
+
+1. 每台電腦安裝 Python 3.12，以及可正常授權使用的 IBM SPSS Statistics（本機驗證版本 30）。
+2. 在這個分支執行 `setup.cmd`。
+3. 依使用的 AI 執行 `connect-spss-codex.cmd` 或 `connect-spss-claude.cmd`，重新開啟 AI。
+4. 對 AI 說：**「使用 statstudio-spss 研究助理。我想知道教育訓練前後分數是否改變，請先告訴我需要準備什麼資料，再建議分析方式。」**
+5. 收到資料後，AI 可執行本機 SPSS，保存 `.sps`、`.spv`、`.xml`、PNG 圖與可攜式 HTML 報告。
+
+完整的資料流程、方法範圍、MCP 工具與多台電腦設定見 **[研究助理使用指南](docs/research-assistant.md)**。自然語言互動在 Codex / Claude Code；`start.cmd` 網頁仍是原有獨立引擎介面。統計運算在本機，傳給 AI 的結果/圖像則會進入所選服務的上下文。
+
+## 原有獨立引擎
+
+以下介紹 `statstudio` MCP 與原有網頁。這條路徑**不需要安裝、啟動或授權 SPSS**，與新的 `statstudio-spss` 服務分開。
 
 目前是 0.1.0 研究版。已實作 18 類常用分析，**尚未達到使用者要求的 SPSS 全功能、全算法、全輸出一致**。SPSS 僅在開發驗證時作為對照基準；同一固定樣本的數值通過，不能推論所有資料、預設與選項都一致。請先閱讀 [實测範圍](docs/validation.md) 與 [算法規格](docs/implemented-algorithms.md)。
 

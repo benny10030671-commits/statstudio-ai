@@ -17,6 +17,8 @@ class AnalysisRequest(BaseModel):
 
 def create_app(root=None):
     store = Store(root)
+    from .research import ResearchWorkspace
+    research = ResearchWorkspace(root)
     app = FastAPI(title='StatStudio AI', docs_url=None, redoc_url=None)
     app.state.store = store
 
@@ -86,6 +88,41 @@ def create_app(root=None):
     @app.get('/api/results/{identifier}/json')
     def json_result(identifier: str):
         return FileResponse(store.result_file(identifier, 'result.json'), media_type='application/json', filename=f'statstudio-{identifier[:8]}.json')
+
+    @app.get('/research')
+    def research_page():
+        return FileResponse(Path(__file__).parent / 'static' / 'research.html', media_type='text/html')
+
+    @app.get('/api/research')
+    def research_overview():
+        return research.overview()
+
+    @app.get('/api/research/plans/{identifier}/{kind}')
+    def research_template(identifier: str, kind: str):
+        names = {'template': 'data-template.csv', 'dictionary': 'data-dictionary.csv', 'json': 'plan.json'}
+        if kind not in names:
+            raise ValueError('Unknown plan artifact.')
+        path = research.folder('plans', identifier) / names[kind]
+        if not path.is_file():
+            raise ValueError('找不到計畫。')
+        return FileResponse(path, filename=path.name)
+
+    @app.get('/api/research/runs/{identifier}/{kind}')
+    def research_artifact(identifier: str, kind: str, interpretation: str | None = None):
+        names = {'report': 'report.html', 'syntax': 'commands.sps', 'viewer': 'native.spv', 'json': 'result.json'}
+        if kind not in names:
+            raise ValueError('Unknown research artifact.')
+        folder = research.folder('runs', identifier)
+        if interpretation:
+            if kind != 'report':
+                raise ValueError('Interpretation is only supported for the report artifact.')
+            folder = folder / 'interpretations' / Store.valid_id(interpretation)
+        path = folder / names[kind]
+        if not path.is_file():
+            raise ValueError('找不到研究結果。')
+        if kind == 'report':
+            return FileResponse(path, media_type='text/html')
+        return FileResponse(path, filename=path.name)
 
     app.mount('/static', StaticFiles(directory=Path(__file__).parent / 'static'), name='static')
     app.mount('/', StaticFiles(directory=Path(__file__).parent / 'static', html=True), name='ui')

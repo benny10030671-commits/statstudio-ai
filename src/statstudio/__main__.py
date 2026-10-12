@@ -15,20 +15,35 @@ def main():
     serve = sub.add_parser('serve', help='開啟本機操作介面')
     serve.add_argument('--port', type=int, default=8765)
     serve.add_argument('--open', action='store_true')
+    serve.add_argument('--research', action='store_true', help='開啟 SPSS 研究計畫與報告頁')
     sub.add_parser('mcp', help='執行 MCP stdio 服務')
     sub.add_parser('install-mcp', help='在 Codex 登錄這個 Python 環境的 MCP 服務')
     sub.add_parser('mcp-config', help='顯示可手動貼入 Codex 的 MCP 設定')
+    sub.add_parser('research-mcp', help='研究助理：由 AI 透過 Python 操作本機 SPSS')
+    sub.add_parser('research-status', help='檢查本機 SPSS 安裝與研究助理設定')
+    research_install = sub.add_parser('install-research-mcp', help='登錄 SPSS 研究助理至 Codex 或 Claude Code')
+    research_install.add_argument('--client', choices=['codex', 'claude'], default='codex')
     args = parser.parse_args()
-    if args.command == 'serve':
+    if args.command == 'research-mcp':
+        from .research_mcp import build_research_mcp
+        build_research_mcp().run(transport='stdio')
+    elif args.command == 'research-status':
+        from .research import ResearchWorkspace
+        print(json.dumps(ResearchWorkspace().installation(), ensure_ascii=False, indent=2))
+    elif args.command == 'install-research-mcp':
+        from .research_install import install
+        install(args.client)
+    elif args.command == 'serve':
         if args.open:
             from urllib.request import urlopen
             from urllib.error import URLError
             address = f'http://127.0.0.1:{args.port}'
+            page = '/research' if args.research else ''
             try:
                 with urlopen(address + '/api/health', timeout=1) as response:
                     existing = json.load(response)
                 if existing.get('app') == 'statstudio-ai':
-                    webbrowser.open(address)
+                    webbrowser.open(address + page)
                     print('已開啟正在執行的 StatStudio AI。')
                     return
             except (URLError, OSError, ValueError):
@@ -36,7 +51,7 @@ def main():
         import uvicorn
         from .server import create_app
         if args.open:
-            timer = threading.Timer(2, lambda: webbrowser.open(f'http://127.0.0.1:{args.port}'))
+            timer = threading.Timer(2, lambda: webbrowser.open(f'http://127.0.0.1:{args.port}' + ('/research' if args.research else '')))
             timer.daemon = True
             timer.start()
         uvicorn.run(create_app(), host='127.0.0.1', port=args.port)
