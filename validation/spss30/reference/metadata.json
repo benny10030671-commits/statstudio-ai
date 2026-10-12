@@ -1,0 +1,146 @@
+{
+  "generated_at_utc": "2026-10-12T01:14:18.970169+00:00",
+  "fixture": "reference.csv",
+  "fixture_sha256": "52bb3f79113244c1ec53382a214cd5caeb79244dd1daac7f8f8cb60074da86ac",
+  "python": "3.10.4 (tags/v3.10.4:9d38120, Mar 23 2022, 23:13:41) [MSC v.1929 64 bit (AMD64)]",
+  "platform": "Windows-10-10.0.26200-SP0",
+  "engine_owner": "new engine started and stopped by this standalone oracle process",
+  "cases": [
+    {
+      "id": "descriptive",
+      "error_level": 0,
+      "message": "No error.",
+      "output_exists": true,
+      "output_sha256": "b0c6af51e31e6c289e3edba4b2b6f4563f3ef4c5c4a577e9ca80f52c17e8ad67"
+    },
+    {
+      "id": "frequencies",
+      "error_level": 0,
+      "message": "No error.",
+      "output_exists": true,
+      "output_sha256": "b1e8391d392b081dca7704fa87af3d3124bc0399599fccfb2eba81958780c7c1"
+    },
+    {
+      "id": "crosstabs",
+      "error_level": 0,
+      "message": "No error.",
+      "output_exists": true,
+      "output_sha256": "0fddaac1d3757f15f9f08d04dc19cb31eb05bc999fe90c956c4aad45f8748fdd"
+    },
+    {
+      "id": "ttest_one",
+      "error_level": 0,
+      "message": "No error.",
+      "output_exists": true,
+      "output_sha256": "dcf440c4532d23a01f1b89a2272edb5f3fdf7c0f3fd12acc7f849293071758fa"
+    },
+    {
+      "id": "ttest_independent",
+      "error_level": 0,
+      "message": "No error.",
+      "output_exists": true,
+      "output_sha256": "b69ec632a0f71f4a5a2161d4284d2b53ed74da8092d06dea61045314db538408"
+    },
+    {
+      "id": "ttest_paired",
+      "error_level": 0,
+      "message": "No error.",
+      "output_exists": true,
+      "output_sha256": "ff3088bffa2da3a6f0b0f7be8b1476cb49427ab212fdca3f91de04c894fe75a9"
+    },
+    {
+      "id": "anova",
+      "error_level": 0,
+      "message": "No error.",
+      "output_exists": true,
+      "output_sha256": "da68a009480beda81b5d608361608fe4d279c3b2ee2185bc0b295224b524faab"
+    },
+    {
+      "id": "correlation",
+      "error_level": 0,
+      "message": "No error.",
+      "output_exists": true,
+      "output_sha256": "0b3850e297766e9ab65e99ad949b2136385b937e5906dcd2df81935b4e2a29da"
+    },
+    {
+      "id": "linear_regression",
+      "error_level": 0,
+      "message": "No error.",
+      "output_exists": true,
+      "output_sha256": "8146e792c453ce93a3a24da529177976bcfc35b29f6187c843dd5c84c14354ad"
+    },
+    {
+      "id": "logistic_regression",
+      "error_level": 0,
+      "message": "No error.",
+      "output_exists": true,
+      "output_sha256": "5b63861a179e57b7029f89bd020fc02fbb2f66437669a196def3118a804ab94f"
+    },
+    {
+      "id": "reliability",
+      "error_level": 0,
+      "message": "No error.",
+      "output_exists": true,
+      "output_sha256": "e61864e73d802fd0c4019d76ebeae5ac47c312adca38e2e7148fa3d5dfa4685a"
+    },
+    {
+      "id": "pca",
+      "error_level": 0,
+      "message": "No error.",
+      "output_exists": true,
+      "output_sha256": "a6b00a67b53824d1fb7c42cfc44a886a6a0dbeea7892266245cca0f9c0c6e1c1"
+    },
+    {
+      "id": "examine",
+      "error_level": 0,
+      "message": "No error.",
+      "output_exists": true,
+      "output_sha256": "53ed0216f5cedc9165f281a8dfc09f386b5a7508486a40e450880c1ef9722cd6"
+    },
+    {
+      "id": "mann_whitney",
+      "error_level": 0,
+      "message": "No error.",
+      "output_exists": true,
+      "output_sha256": "e984839b0e9982d9d319f09fec91576e3c22996c5aa9b74b25450edaef1abc74"
+    },
+    {
+      "id": "wilcoxon",
+      "error_level": 0,
+      "message": "No error.",
+      "output_exists": true,
+      "output_sha256": "742ad5239c5f62a3b69e050e29d78d6ec5f121520951fa651e3b607996fa77c7"
+    },
+    {
+      "id": "kruskal",
+      "error_level": 0,
+      "message": "No error.",
+      "output_exists": true,
+      "output_sha256": "1b932a1b39ea46ad23b05dc4e41a1d9f709c9e70657b2ee8acfdecde292a4684"
+    },
+    {
+      "id": "factor",
+      "error_level": 0,
+      "message": "No error.",
+      "output_exists": true,
+      "output_sha256": "3de8296448994485a335158f512cdcc540a5879687c67f2c7af04cfe3c987981"
+    },
+    {
+      "id": "hierarchical",
+      "error_level": 0,
+      "message": "No error.",
+      "output_exists": true,
+      "output_sha256": "37e6b64a8dae4a362a5fd31f5ee3576f813297ccaaca5fb628bec5df414de9ba"
+    },
+    {
+      "id": "kmeans",
+      "error_level": 0,
+      "message": "No error.",
+      "output_exists": true,
+      "output_sha256": "32704a251d1f97960f975c8e9f7731d47cda7ec77d2d39509c79b7c443d19a3b"
+    }
+  ],
+  "spss_version": "30.0",
+  "spss_python_module": "C:\\Program Files\\IBM\\SPSS Statistics\\Python3\\lib\\site-packages\\spss\\__init__.py",
+  "spss_executable_sha256": "9094ae0ba4addda87c7ca1ff75ef16633341e9950592aefe2813cb12862ce52e"
+}

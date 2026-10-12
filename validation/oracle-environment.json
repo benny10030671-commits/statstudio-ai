@@ -1,0 +1,10 @@
+{
+  "product": "IBM SPSS Statistics",
+  "engine_file_version": "30.0.0.0.0",
+  "engine_product_version": "30.0.0.0.0",
+  "engine_sha256": "9094ae0ba4addda87c7ca1ff75ef16633341e9950592aefe2813cb12862ce52e",
+  "baseline_owner": "New Python-driven SPSS engine, synthetic fixtures only",
+  "operating_system": "Microsoft Windows NT 10.0.26200.0",
+  "source_precision": "OMS OXML number attributes",
+  "generated_at_utc": "2026-10-12T01:17:41.9210729Z"
+}

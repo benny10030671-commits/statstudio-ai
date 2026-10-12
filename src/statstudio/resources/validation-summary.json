@@ -1,0 +1,198 @@
+{
+  "generated_at_utc": "2026-10-12T01:23:54.915332+00:00",
+  "engine_sha256": "3a678a74785596e1df1a40b4fd928640d211dfe65134e5b326f7217bb2c3286a",
+  "numeric_libraries": {
+    "numpy": "2.5.4",
+    "pandas": "3.0.6",
+    "scipy": "1.18.1",
+    "scikit-learn": "1.9.1",
+    "statsmodels": "0.15.0"
+  },
+  "policy": {
+    "continuous": "atol=1e-10, rtol=1e-8",
+    "probabilities": "atol=0, rtol=1e-7",
+    "integer_counts_df": "exact; fractional Welch df uses continuous tolerance",
+    "source_precision": "OXML number attributes, generally 14 significant digits; unrounded display not a raw binary dump",
+    "alignment": "No rounding, PCA sign alignment or label permutations"
+  },
+  "counts": {
+    "passed": 1244
+  },
+  "methods": [
+    "anova",
+    "correlation",
+    "crosstabs",
+    "descriptive",
+    "factor",
+    "frequencies",
+    "hierarchical",
+    "kmeans",
+    "kruskal",
+    "linear_regression",
+    "logistic_regression",
+    "mann_whitney",
+    "pca",
+    "reliability",
+    "ttest_independent",
+    "ttest_one",
+    "ttest_paired",
+    "wilcoxon"
+  ],
+  "fixtures": [
+    "reference",
+    "reference_missing"
+  ],
+  "fully_spss_compatible": false,
+  "tested_options": {
+    "descriptive": {
+      "variables": [
+        "x",
+        "y",
+        "z"
+      ],
+      "missing": "available",
+      "confidence": 0.95,
+      "quantile": "weibull"
+    },
+    "frequencies": {
+      "variables": [
+        "group",
+        "binary"
+      ]
+    },
+    "crosstabs": {
+      "x": "group",
+      "y": "binary"
+    },
+    "ttest_one": {
+      "variables": [
+        "x",
+        "y"
+      ],
+      "test_value": 0.25,
+      "confidence": 0.95
+    },
+    "ttest_independent": {
+      "variables": [
+        "y"
+      ],
+      "group": "binary",
+      "variance": "both",
+      "confidence": 0.95
+    },
+    "ttest_paired": {
+      "x": "paired_a",
+      "y": "paired_b",
+      "confidence": 0.95
+    },
+    "anova": {
+      "variables": [
+        "y"
+      ],
+      "group": "group"
+    },
+    "correlation": {
+      "variables": [
+        "x",
+        "y",
+        "z"
+      ],
+      "coefficient": "pearson",
+      "missing": "pairwise",
+      "confidence": 0.95
+    },
+    "linear_regression": {
+      "target": "y",
+      "predictors": [
+        "x",
+        "z"
+      ],
+      "intercept": "yes",
+      "confidence": 0.95
+    },
+    "logistic_regression": {
+      "target": "binary",
+      "predictors": [
+        "x",
+        "z"
+      ],
+      "event": "last",
+      "max_iter": 100,
+      "confidence": 0.95
+    },
+    "reliability": {
+      "variables": [
+        "item1",
+        "item2",
+        "item3"
+      ]
+    },
+    "pca": {
+      "variables": [
+        "item1",
+        "item2",
+        "item3"
+      ],
+      "components": 2,
+      "matrix": "correlation",
+      "rotation": "none"
+    },
+    "mann_whitney": {
+      "x": "y",
+      "group": "binary",
+      "continuity": "no"
+    },
+    "wilcoxon": {
+      "x": "paired_a",
+      "y": "paired_b",
+      "continuity": "no"
+    },
+    "kruskal": {
+      "x": "y",
+      "group": "group"
+    },
+    "factor": {
+      "variables": [
+        "item1",
+        "item2",
+        "item3"
+      ],
+      "factors": 1,
+      "rotation": "none",
+      "max_iter": 100,
+      "tolerance": 1e-06
+    },
+    "hierarchical": {
+      "variables": [
+        "x",
+        "z"
+      ],
+      "clusters": 3,
+      "standardize": "no",
+      "linkage": "average",
+      "distance": "sqeuclidean",
+      "label_order": "native"
+    },
+    "kmeans": {
+      "variables": [
+        "x",
+        "z"
+      ],
+      "clusters": 3,
+      "standardize": "no",
+      "initialization": "first",
+      "seed": 42,
+      "max_iter": 300,
+      "label_order": "native"
+    }
+  },
+  "scope": "Only the explicitly listed fields, synthetic fixtures and options in validation/parity-report.json were compared. No whole-procedure or whole-product equivalence claim.",
+  "limitations": [
+    "user-defined missing values and weights not supported",
+    "categorical predictor expansion not supported",
+    "many advanced SPSS procedures not implemented",
+    "output layout and SPV not equivalent",
+    "unmeasured options and datasets remain unverified"
+  ],
+  "source_report": "validation/parity-report.json"
+}

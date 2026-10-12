@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <title>StatStudio AI · 獨立統計工作室</title>
+  <link rel="stylesheet" href="/static/styles.css">
+  <script src="/static/app.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">跳至工作區</a>
+  <header class="topbar">
+    <a class="brand" href="/" aria-label="StatStudio AI 首頁"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i></span><span>StatStudio <b>AI</b><small>獨立統計工作室</small></span></a>
+    <div class="header-info"><span class="local-badge"><span></span>本機工作區</span><span id="connection-status" class="connection-status" role="status">正在連線…</span></div>
+  </header>
+  <div class="app-shell">
+    <aside class="sidebar" aria-label="資料管理">
+      <div class="sidebar-heading"><span class="eyebrow">DATA LIBRARY</span><h2>我的資料</h2><p>匯入檔案，開始一次分析。</p></div>
+      <label id="drop-zone" class="drop-zone" for="upload-input"><span class="upload-symbol" aria-hidden="true">↥</span><strong>拖曳檔案到這裡</strong><span>或點選選擇檔案</span><small>CSV · TSV · XLSX · SAV · ZSAV</small></label>
+      <input id="upload-input" class="visually-hidden" type="file" accept=".csv,.tsv,.xlsx,.sav,.zsav" aria-label="匯入資料檔案">
+      <button id="demo-button" class="button button-secondary full-width" type="button"><span aria-hidden="true">✧</span> 載入示範資料</button>
+      <div class="section-label"><h3>已載入的資料集</h3><span id="dataset-count" class="count">0</span></div>
+      <div id="dataset-list" class="dataset-list"><p class="muted small">尚未載入資料。</p></div>
+      <div class="sidebar-note"><span class="note-icon" aria-hidden="true">◎</span><div><strong>在本機執行計算</strong><p>MCP 工具會將欄位資訊、前 10 筆資料預覽與分析結果傳回連接的 AI。使用前請確認這些資料適合提供。</p></div></div>
+    </aside>
+    <main id="main" class="main" tabindex="-1">
+      <div id="notification" class="notification" role="status" hidden></div>
+      <div class="workspace-heading"><div><span class="eyebrow">YOUR STATISTICAL WORKSPACE</span><h1>從資料，到理解。</h1><p>選擇分析方法，查看結果，留下可重現的紀錄。</p></div><span class="version-badge">獨立運算引擎</span></div>
+      <nav class="tabs" aria-label="工作區分頁" role="tablist">
+        <button id="tab-analysis" class="tab active" type="button" role="tab" aria-selected="true" aria-controls="panel-analysis" data-tab="analysis">分析工作區</button>
+        <button id="tab-history" class="tab" type="button" role="tab" aria-selected="false" aria-controls="panel-history" data-tab="history" tabindex="-1">分析紀錄 <span id="history-count" class="tab-count">0</span></button>
+        <button id="tab-ai" class="tab" type="button" role="tab" aria-selected="false" aria-controls="panel-ai" data-tab="ai" tabindex="-1"><span aria-hidden="true">✧</span> 讓 AI 協助</button>
+      </nav>
+      <section id="panel-analysis" role="tabpanel" aria-labelledby="tab-analysis">
+        <div id="welcome" class="welcome-card"><div class="welcome-art" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><span></span></div><div><span class="eyebrow">先從一份資料開始</span><h2>你的下一個發現，在資料裡。</h2><p>匯入左側的資料檔，或載入示範資料，探索描述統計、統計檢定與建模。</p><button id="welcome-demo" class="button button-primary" type="button">使用示範資料 <span aria-hidden="true">↗</span></button></div></div>
+        <section id="dataset-section" class="card dataset-card" aria-label="目前資料集" hidden>
+          <div class="card-heading"><div><span class="step-label">01 / 資料</span><h2 id="dataset-title"></h2></div><div id="dataset-metrics" class="dataset-metrics"></div></div>
+          <details class="data-details"><summary>查看欄位與資料預覽 <span aria-hidden="true">＋</span></summary><div class="preview-content"><div id="column-summary" class="column-summary"></div><h3 class="small-heading">前幾筆資料</h3><div id="dataset-preview" class="table-scroll"></div></div></details>
+        </section>
+        <div id="analysis-grid" class="analysis-grid" hidden>
+          <section class="card analysis-card"><div class="card-heading"><div><span class="step-label">02 / 分析</span><h2>想了解什麼？</h2></div></div>
+            <form id="analysis-form"><label class="field"><span>分析方法</span><select id="method-select" required aria-describedby="method-description"><option value="">載入方法中…</option></select></label><p id="method-description" class="method-description"></p><div id="role-fields"></div><div id="parameter-fields" class="parameter-fields"></div><button id="run-button" class="button button-primary full-width" type="submit"><span aria-hidden="true">↗</span> 執行分析</button><p class="form-footnote">方法與選項將隨結果一併保存。</p></form>
+          </section>
+          <section id="results-region" class="results-region" aria-label="分析結果" aria-live="polite"><div id="result-placeholder" class="result-placeholder"><div class="empty-chart" aria-hidden="true"><i></i><i></i><i></i><i></i></div><span class="step-label">03 / 結果</span><h2>讓資料說話</h2><p>設定左側的分析條件，<br>結果與圖表會顯示在這裡。</p></div><div id="result-content" hidden></div></section>
+        </div>
+        <p class="workspace-footnote">相容性以逐項驗證為準。使用相同方法名稱，不代表所有預設值或結果都與 SPSS 相同。</p>
+      </section>
+      <section id="panel-history" role="tabpanel" aria-labelledby="tab-history" hidden><div class="panel-heading"><div><h2>每次分析，都有跡可循。</h2><p>重新開啟結果，檢視參數，下載報告。</p></div><button id="refresh-history" class="button button-secondary" type="button">重新整理</button></div><div id="history-list" class="history-list"></div></section>
+      <section id="panel-ai" role="tabpanel" aria-labelledby="tab-ai" hidden>
+        <div class="ai-intro card"><div class="ai-symbol" aria-hidden="true">✧</div><span class="eyebrow">AI ASSISTED · HUMAN REVIEWED</span><h2>用自然語言，指揮你的統計工作室。</h2><p>StatStudio 提供 MCP 工具，讓 Codex 讀取資料欄位、執行統計並解讀結果。統計計算在本機執行；MCP 工具會將欄位資訊、前 10 筆資料預覽與分析結果傳回連接的 AI。此頁提供連接方式與指令範例；對話在你使用的 AI 應用程式進行。</p><div class="connection-guide"><span class="step-circle">1</span><div><h3>在安裝本工具的終端機執行</h3><div class="code-copy"><code id="mcp-command">python -m statstudio install-mcp</code><button id="copy-mcp" class="copy-button" type="button" aria-label="複製 MCP 安裝指令">複製</button></div><p>使用已安裝 StatStudio 的 Python 環境。完成後，重新啟動 Codex，使其載入 MCP 設定。</p></div></div><div class="connection-guide"><span class="step-circle">2</span><div><h3>把問題交給 Codex</h3><p>先請 AI 檢查欄位與遺漏值，再確認方法、分析假設與結果。檔案路徑必須是目前電腦上的路徑。</p></div></div><div class="ai-examples" id="ai-examples"></div></div>
+        <div class="ai-principles"><div><span>01</span><h3>你決定研究問題</h3><p>告訴 AI 變數的意思、分組方式與你想回答的問題。</p></div><div><span>02</span><h3>每個數字都可追溯</h3><p>保留資料、分析選項與計算引擎資訊，方便重做與核對。</p></div><div><span>03</span><h3>先確認，再下結論</h3><p>檢查遺漏值、假設、警告及相容性標記，避免過度解讀。</p></div></div>
+      </section>
+      <footer class="footer"><span>StatStudio AI</span><span>本機計算 · 可重現分析 · 清楚的驗證狀態</span></footer>
+    </main>
+  </div>
+</body>
+</html>

@@ -1,0 +1,143 @@
+{
+  "descriptive": {
+    "variables": [
+      "x",
+      "y",
+      "z"
+    ],
+    "missing": "available",
+    "confidence": 0.95,
+    "quantile": "weibull"
+  },
+  "frequencies": {
+    "variables": [
+      "group",
+      "binary"
+    ]
+  },
+  "crosstabs": {
+    "x": "group",
+    "y": "binary"
+  },
+  "ttest_one": {
+    "variables": [
+      "x",
+      "y"
+    ],
+    "test_value": 0.25,
+    "confidence": 0.95
+  },
+  "ttest_independent": {
+    "variables": [
+      "y"
+    ],
+    "group": "binary",
+    "variance": "both",
+    "confidence": 0.95
+  },
+  "ttest_paired": {
+    "x": "paired_a",
+    "y": "paired_b",
+    "confidence": 0.95
+  },
+  "anova": {
+    "variables": [
+      "y"
+    ],
+    "group": "group"
+  },
+  "correlation": {
+    "variables": [
+      "x",
+      "y",
+      "z"
+    ],
+    "coefficient": "pearson",
+    "missing": "pairwise",
+    "confidence": 0.95
+  },
+  "linear_regression": {
+    "target": "y",
+    "predictors": [
+      "x",
+      "z"
+    ],
+    "intercept": "yes",
+    "confidence": 0.95
+  },
+  "logistic_regression": {
+    "target": "binary",
+    "predictors": [
+      "x",
+      "z"
+    ],
+    "event": "last",
+    "max_iter": 100,
+    "confidence": 0.95
+  },
+  "reliability": {
+    "variables": [
+      "item1",
+      "item2",
+      "item3"
+    ]
+  },
+  "pca": {
+    "variables": [
+      "item1",
+      "item2",
+      "item3"
+    ],
+    "components": 2,
+    "matrix": "correlation",
+    "rotation": "none"
+  },
+  "mann_whitney": {
+    "x": "y",
+    "group": "binary",
+    "continuity": "no"
+  },
+  "wilcoxon": {
+    "x": "paired_a",
+    "y": "paired_b",
+    "continuity": "no"
+  },
+  "kruskal": {
+    "x": "y",
+    "group": "group"
+  },
+  "factor": {
+    "variables": [
+      "item1",
+      "item2",
+      "item3"
+    ],
+    "factors": 1,
+    "rotation": "none",
+    "max_iter": 100,
+    "tolerance": 1e-06
+  },
+  "hierarchical": {
+    "variables": [
+      "x",
+      "z"
+    ],
+    "clusters": 3,
+    "standardize": "no",
+    "linkage": "average",
+    "distance": "sqeuclidean",
+    "label_order": "native"
+  },
+  "kmeans": {
+    "variables": [
+      "x",
+      "z"
+    ],
+    "clusters": 3,
+    "standardize": "no",
+    "initialization": "first",
+    "seed": 42,
+    "max_iter": 300,
+    "label_order": "native"
+  }
+}
