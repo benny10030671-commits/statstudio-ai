@@ -17,6 +17,8 @@ from scipy.cluster import hierarchy
 from sklearn.cluster import KMeans
 import statsmodels.api as sm
 
+from . import meta as _meta
+
 
 def _select(key, label, default, choices):
     return {"key": key, "label": label, "type": "select", "default": default, "choices": choices}
@@ -55,6 +57,10 @@ METHODS = [
     _method("mann_whitney", "Mann–Whitney U", "兩個獨立組別；漸近法含同分校正，可選連續性校正。", {"x": "single", "group": "single"}, [_select("continuity", "連續性校正", "yes", ["yes", "no"])]),
     _method("wilcoxon", "Wilcoxon 符號等級", "成對 x−y；移除零差值，雙尾常態近似及同分校正。", {"x": "single", "y": "single"}, [_select("continuity", "連續性校正", "no", ["yes", "no"])]),
     _method("kruskal", "Kruskal–Wallis", "獨立組別的秩和檢定，含同分校正，漸近卡方 p 值。", {"x": "single", "group": "single"}),
+    _method("meta_binary", "統合分析（二元結果）", "兩臂事件數的反變異數合併：共同效應與隨機效應（DL/REML/PM）、Hartung–Knapp、預測區間、Peto 與 MH、子群檢定、Egger。", {"study": "single", "event_exp": "single", "n_exp": "single", "event_ctrl": "single", "n_ctrl": "single", "subgroup": "optional-single"}, [_select("measure", "效應量", "OR", ["OR", "RR"]), _select("tau2_method", "tau² 估計法", "DL", ["DL", "REML", "PM"]), _number("cc", "零格連續性校正（只加在含零格的研究）", 0.5), _CI]),
+    _method("meta_regression", "統合迴歸（單變量）", "混合效應統合迴歸，REML 或 DL 殘差 tau²，預設 Knapp–Hartung t 檢定；研究數少於 10 僅供探索。", {"study": "single", "event_exp": "single", "n_exp": "single", "event_ctrl": "single", "n_ctrl": "single", "moderator": "single"}, [_select("measure", "效應量", "OR", ["OR", "RR"]), _select("tau2_method", "tau² 估計法", "REML", ["REML", "DL"]), _select("knapp_hartung", "Knapp–Hartung 調整", "yes", ["yes", "no"]), _number("cc", "零格連續性校正", 0.5), _CI]),
+    _method("bayes_meta_binary", "貝氏統合分析（二元結果）", "二項–常態階層模型（logit），弱資訊先驗，MCMC（Metropolis-within-Gibbs）；輸出後驗中位數、可信區間、OR<1 機率、R-hat、DIC。", {"study": "single", "event_exp": "single", "n_exp": "single", "event_ctrl": "single", "n_ctrl": "single"}, [_select("model", "模型", "random", ["random", "fixed"]), _number("prior_effect_sd", "整體 log OR 先驗 normal(0, sd)", 1), _number("prior_tau_scale", "tau 先驗 half-normal(scale)", 0.5), _number("prior_baseline_sd", "各研究基線 logit 先驗 normal(0, sd)", 10), _number("chains", "鏈數", 4), _number("iterations", "每鏈保留迭代數", 20000), _number("burnin", "暖身迭代數", 5000), _number("seed", "亂數種子", 20261108), _CI]),
+    _method("tsa_binary", "試驗序列分析（二元結果）", "依時間順序累積的隨機效應 Z 曲線、多樣性校正所需資訊量（RIS）、Lan–DeMets O'Brien–Fleming 監測邊界（僅效益／危害）。", {"study": "single", "event_exp": "single", "n_exp": "single", "event_ctrl": "single", "n_ctrl": "single", "order": "optional-single"}, [_number("alpha", "雙尾 alpha", 0.05), _number("power", "檢定力", 0.8), _number("rrr", "預期相對風險下降（0 = 取自合併估計）", 0), _number("control_risk", "對照組事件比例（0 = 取自資料）", 0), _select("tau2_method", "tau² 估計法", "DL", ["DL", "REML", "PM"]), _number("cc", "零格連續性校正", 0.5)]),
 ]
 _METHOD_MAP = {m["id"]: m for m in METHODS}
 
@@ -97,6 +103,11 @@ def _validate(df, method, options):
     opts = dict(options)
     for role, mode in spec["roles"].items():
         val = opts.get(role)
+        if mode.startswith("optional-"):
+            if val is None or val == "":
+                opts.pop(role, None)
+                continue
+            mode = mode[len("optional-"):]
         if mode == "multi":
             if not isinstance(val, list) or not val or any(not isinstance(v, str) for v in val):
                 raise ValueError(f"{role} 必須是非空欄位名稱清單。")
@@ -123,7 +134,7 @@ def _validate(df, method, options):
                 raise ValueError(f"{key} 必須是有限數值。")
     if "confidence" in opts and not 0 < opts["confidence"] < 1:
         raise ValueError("confidence 必須大於 0 且小於 1。")
-    for key in ("components", "factors", "clusters", "max_iter", "seed"):
+    for key in ("components", "factors", "clusters", "max_iter", "seed", "chains", "iterations", "burnin"):
         if key in opts:
             val = opts[key]
             if val != int(val) or val < (0 if key == "seed" else 1):
@@ -133,6 +144,8 @@ def _validate(df, method, options):
         raise ValueError("seed 必須小於 2^32。")
     if opts.get("max_iter", 1) > 10000:
         raise ValueError("max_iter 不可超過 10000。")
+    if opts.get("iterations", 1) > 200000 or opts.get("burnin", 1) > 100000 or opts.get("chains", 1) > 16:
+        raise ValueError("iterations ≤ 200000、burnin ≤ 100000、chains ≤ 16。")
     if "tolerance" in opts and not 0 < opts["tolerance"] < 1:
         raise ValueError("tolerance 必須介於 0 和 1。")
     if "x" in opts and "y" in opts and opts["x"] == opts["y"]:
@@ -714,7 +727,7 @@ def analyze(df: pd.DataFrame, method: str, options: dict) -> dict:
     """
     spec, opts = _validate(df, method, options)
     result = {"title": spec["label"], "tables": [], "warnings": ["獨立實作：尚未完成本方法所有選項及邊界情況與 SPSS 30 的一致性驗證。"], "details": {"method": method, "options": opts, "n_input": len(df), "parity_status": "unverified", "weights": "unsupported", "user_missing": "unsupported; actual NA only", "p_values": "two-sided unless an omnibus F/chi-square test", "numeric_precision": "float64; not rounded"}, "charts": []}
-    dispatch = {"descriptive": _descriptive, "frequencies": _frequencies, "crosstabs": _crosstabs, "ttest_one": _ttest_one, "ttest_independent": _ttest_independent, "ttest_paired": _ttest_paired, "anova": _anova, "correlation": _correlation, "linear_regression": _linear, "logistic_regression": _logistic, "pca": _pca, "factor": _factor, "kmeans": _cluster, "hierarchical": lambda d, o, r: _cluster(d, o, r, hierarchical=True), "reliability": _reliability}
+    dispatch = {"descriptive": _descriptive, "frequencies": _frequencies, "crosstabs": _crosstabs, "ttest_one": _ttest_one, "ttest_independent": _ttest_independent, "ttest_paired": _ttest_paired, "anova": _anova, "correlation": _correlation, "linear_regression": _linear, "logistic_regression": _logistic, "pca": _pca, "factor": _factor, "kmeans": _cluster, "hierarchical": lambda d, o, r: _cluster(d, o, r, hierarchical=True), "reliability": _reliability, "meta_binary": _meta.meta_binary, "meta_regression": _meta.meta_regression, "bayes_meta_binary": _meta.bayes_meta_binary, "tsa_binary": _meta.tsa_binary}
     with pywarnings.catch_warnings(record=True) as caught:
         pywarnings.simplefilter("always")
         if method in dispatch:

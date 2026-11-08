@@ -103,3 +103,7 @@ python validation/compare.py
 ```
 
 Oracle 程式只接受兩個內建合成 fixture 名稱，會啟動並停止自己的引擎。`.sps` 內的 OMS 目的路徑記錄原始環境的絕對位置；跨機時用產生程式重新建立正確路徑，不應直接執行仍指向舊電腦的輸出位置。重建前先保留既有基準，變更 SPSS build 或資料雜湊後應作新的比較與審查。
+
+## 統合分析方法的對照（非 SPSS）
+
+`meta_binary`、`meta_regression`、`bayes_meta_binary`、`tsa_binary` 不以 SPSS 為基準。`validation/meta/synthetic_oracle.R` 以 R meta 8.5.0 / metafor 5.0.1 對 6 篇合成研究產生參照值（`synthetic_oracle.json`），`tests/test_meta.py` 逐欄比對：研究 log OR 與 SE、共同／隨機效應估計與 CI、Hartung–Knapp、τ²（DL／REML／PM）、I²、Q、預測區間、τ² Q-profile 區間、Peto、MH、Egger、子群估計與 Q_b、統合迴歸（REML+Knapp–Hartung、DL+z）。連續數值容差 1e-8 相對／1e-9 絕對（REML τ² 1e-6，因兩邊最佳化停止準則不同）。貝氏模型以 rjags 相同模型在實際資料集比對後驗中位數與可信區間（容忍 MCMC 誤差），記錄於使用該引擎的研究專案。TSA 邊界只與文獻表值比對，未與 TSA 軟體逐欄比對。

@@ -156,3 +156,28 @@ Mann–Whitney 近似分布的校正定義見 [SciPy 官方 API](https://docs.sc
 `tests/test_engine.py` 包含：樣本變異與偏峰態解析值、缺失百分比分母、未支援選項拒絕、文字及無限值拒絕、常數 t 檢定、數值類別排序、Welch 自由度、成對缺失遮罩、pairwise/listwise N 差異、OLS 已知投影與秩不足、Logit 正反事件編碼及分離、PCA trace/共同性、相同題目 α=1、全同值與全零差值秩檢定、average 平方距離先平方後平均、Ward 非歐氏拒絕、first 初始化的完整個案列與重複中心、提前停止後中心/inertia 一致、群編號選項不改 partition，以及全部 18 方法的矩形 JSON 輸出和原資料不變。
 
 這些測試檢查數學與程式行為，不證明任何未測試的資料、選項、作業系統、BLAS 版本或 SPSS 程序之間完全一致。對外標記相容時，必須列出資料 hash、SPSS 版本、完整 syntax、本工具版本與選項、精確比較欄位及絕對／相對容許誤差。
+
+## 統合分析方法（19–22）
+
+這四個方法由 `src/statstudio/meta.py` 實作，輸入為每篇研究一列的兩臂事件數與人數（`study`、`event_exp`、`n_exp`、`event_ctrl`、`n_ctrl`）。**對照基準不是 SPSS**：參照值以 R `meta` 8.5.0、`metafor` 5.0.1 與 `rjags` 4.17（JAGS 4.3.1）在固定資料集產生，比對程式與結果見 [validation/meta](../validation/meta/)。事件數必須是非負整數；資料裡若已手動加 0.5 會被拒絕，連續性校正由程式處理。
+
+### 19. 統合分析（二元結果）`meta_binary`
+
+- 效應量 `measure=OR`（預設）或 `RR`，以 log 尺度合併。含零格的研究四格各加 `cc`（預設 0.5；`incr`/`method.incr="only0"` 的 meta 慣例）；兩組皆無事件或皆為事件的研究不可估計，排除於反變異數合併並列於 `details.double_zero_excluded`。
+- 共同效應：w=1/v。隨機效應：`tau2_method=DL`（DerSimonian–Laird，預設）、`REML`（有界數值最大化限制概似）、`PM`（Paule–Mandel，解 Q(τ²)=k−1）。95% CI 預設常態；另列 Hartung–Knapp 區間（t，k−1 自由度，無 ad hoc 修正，對應 meta `method.random.ci="HK"`）。
+- 異質性：Q、I²=max(0,(Q−df)/Q)、H、τ² 的 Q-profile 區間（Viechtbauer 2007）、預測區間（t，k−1 自由度，對應 meta ≥7 預設 `method.predict="V"`）。
+- Peto 共同效應 OR 與 Mantel–Haenszel 共同效應 OR（RGB 變異數）皆不用連續性校正，供稀少事件敏感度分析。
+- `subgroup`（選填）：各子群分別估 τ²（`tau.common=FALSE`），子群差異檢定為隨機效應 Q_b（df=G−1）。只有 1 篇的子群會附警告。
+- Egger 檢定為 y/se 對 1/se 的普通最小平方截距檢定；k<10 僅供參考。
+
+### 20. 統合迴歸（單變量）`meta_regression`
+
+混合效應模型 y_i = β₀ + β₁x_i + u_i + e_i。殘差 τ² 以 `REML`（預設）或 `DL`（動差法，trace(P) 公式）估計；`knapp_hartung=yes`（預設）把係數共變異乘以 Σw(y−Xβ)²/(k−p) 並用 t(k−p)。R² = max(0, 1 − τ²_res/τ²_0)。至少 4 篇研究；少於 10 篇會附警告，應視為探索性。對應 metafor `rma(..., test="knha")`。
+
+### 21. 貝氏統合分析（二元結果）`bayes_meta_binary`
+
+二項–常態階層模型：r₀ᵢ~Bin(p₀ᵢ,n₀ᵢ)、r₁ᵢ~Bin(p₁ᵢ,n₁ᵢ)、logit p₀ᵢ=μᵢ、logit p₁ᵢ=μᵢ+δᵢ、δᵢ~N(d,τ²)。先驗預設 d~N(0, `prior_effect_sd`²=1)、τ~half-normal(`prior_tau_scale`=0.5)、μᵢ~N(0, `prior_baseline_sd`²=10²)；`model=fixed` 時 δᵢ≡d。取樣器為向量化的 adaptive Metropolis-within-Gibbs（μᵢ、δᵢ 隨機漫步、d 共軛 Gibbs、log τ 隨機漫步），暖身期每 50 次調整步長至接受率約 0.44。輸出後驗中位數／平均／SD／可信區間、OR<1、<0.9、<0.8、>1 的機率、新研究預測 OR、split-R̂ 與 ESS、DIC（Spiegelhalter 2002）以及各研究收縮估計。兩組皆零事件的研究仍納入。先驗為弱資訊性，應以敏感度分析檢視。
+
+### 22. 試驗序列分析（二元結果）`tsa_binary`
+
+依 `order` 欄位（選填）排序後逐篇累積隨機效應（DL）合併，計算累積 Z。所需資訊量 RIS = 4(z_{1−α/2}+z_{1−β})² p̄(1−p̄)/(p_c−p_e)²，再除以 (1−D²)，D² = 1 − V_FE/V_RE（Wetterslev 2009）。對照組事件比例預設取自資料、相對風險下降 `rrr` 預設由合併估計轉換（屬事後假設，請同時提供預設值）。監測邊界為 Lan–DeMets α-spending、O'Brien–Fleming 型（每側 α/2：α*(t)=2−2Φ(z_{1−α/4}/√t)，ldbounds／TSA 慣例），以 Brownian motion 尺度的遞迴數值積分求得（格點 0.005），只計算效益／危害邊界，未實作無效邊界。等距五次分析的邊界與文獻表值（4.877、3.357、2.680、2.290、2.031）差異 <0.01。

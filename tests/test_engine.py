@@ -195,8 +195,17 @@ def test_all_methods_have_rectangular_json_tables_and_do_not_mutate_input():
     df = pd.DataFrame({f"v{i}": latent+rng.normal(scale=.7, size=n) for i in range(5)})
     df["g"] = np.tile([1, 2], n//2)
     df["bin"] = rng.binomial(1, 1/(1+np.exp(-.2*df.v0)))
+    # two-arm count columns for the meta-analysis procedures (only the first 6 rows are studies)
+    df["study"] = [f"S{i}" if i < 6 else None for i in range(n)]
+    df["e1"] = [12, 3, 0, 45, 8, 10] + [None]*(n-6); df["n1"] = [100, 40, 30, 500, 60, 150] + [None]*(n-6)
+    df["e2"] = [18, 5, 2, 40, 19, 35] + [None]*(n-6); df["n2"] = [98, 42, 31, 490, 58, 148] + [None]*(n-6)
+    df["year"] = [2001, 2003, 2005, 2007, 2009, 2011] + [None]*(n-6)
     saved = df.copy(deep=True)
+    counts = {"study": "study", "event_exp": "e1", "n_exp": "n1", "event_ctrl": "e2", "n_ctrl": "n2"}
     configs = {
+        "meta_binary": {**counts, "subgroup": "year"}, "meta_regression": {**counts, "moderator": "year"},
+        "bayes_meta_binary": {**counts, "iterations": 1000, "burnin": 200, "chains": 2},
+        "tsa_binary": {**counts, "order": "year", "rrr": 0.2},
         "descriptive": {"variables": ["v0", "v1"]}, "frequencies": {"variables": ["g"]},
         "crosstabs": {"x": "g", "y": "bin"}, "ttest_one": {"variables": ["v0"]},
         "ttest_independent": {"variables": ["v0"], "group": "g"}, "ttest_paired": {"x": "v0", "y": "v1"},

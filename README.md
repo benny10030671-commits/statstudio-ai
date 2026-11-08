@@ -2,7 +2,7 @@
 
 繁體中文的本機統計工具，可由 Codex 透過 MCP 操作。計算使用獨立 Python 引擎，**不需要安裝、啟動或授權 SPSS**。
 
-目前是 0.1.0 研究版。已實作 18 類常用分析，**尚未達到使用者要求的 SPSS 全功能、全算法、全輸出一致**。SPSS 僅在開發驗證時作為對照基準；同一固定樣本的數值通過，不能推論所有資料、預設與選項都一致。請先閱讀 [實测範圍](docs/validation.md) 與 [算法規格](docs/implemented-algorithms.md)。
+目前是 0.1.0 研究版。已實作 18 類常用分析，另加 4 個統合分析方法（以 R meta／metafor／rjags 為對照），**尚未達到使用者要求的 SPSS 全功能、全算法、全輸出一致**。SPSS 僅在開發驗證時作為對照基準；同一固定樣本的數值通過，不能推論所有資料、預設與選項都一致。請先閱讀 [實测範圍](docs/validation.md) 與 [算法規格](docs/implemented-algorithms.md)。
 
 ## 在這台或另一台 Windows 電腦使用
 
@@ -39,6 +39,7 @@
 | 基本統計 | 描述統計、次數分配、交叉表／卡方、單樣本／独立樣本／配對 t 檢定、單因子 ANOVA、Pearson／Spearman／Kendall 相關 |
 | 建模與量表 | 線性迴歸、二元 logistic、PCA、主軸因素分析、Cronbach α |
 | 群集／無母數 | K-means、階層式群集、Mann–Whitney、Wilcoxon、Kruskal–Wallis |
+| 統合分析（二元結果） | 反變異數共同／隨機效應（DL／REML／PM）、Hartung–Knapp、預測區間、Peto／MH、子群、Egger；單變量統合迴歸（Knapp–Hartung）；貝氏二項–常態階層模型（MCMC）；試驗序列分析（Lan–DeMets O'Brien–Fleming）。對照基準為 R meta／metafor／rjags，不是 SPSS |
 | 輸出 | 結果表、直方圖／散布圖／長條圖、完整精度 JSON、含 SVG 圖的獨立 HTML |
 
 未支援的選項會報錯，不會默默忽略。尚未涵蓋 GLM 多因子／重複量數、混合模型、存活分析、時間序列、複雜抽樣、多重插補、Bootstrap、全部事後比較、加權、SPSS 語法相容解析器及 SPV 原生輸出。獨立介面與報表不是 SPSS Viewer 的版面複製品。
