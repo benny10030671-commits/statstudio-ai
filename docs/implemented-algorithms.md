@@ -159,15 +159,16 @@ Mann–Whitney 近似分布的校正定義見 [SciPy 官方 API](https://docs.sc
 
 ## 統合分析方法（19–22）
 
-這四個方法由 `src/statstudio/meta.py` 實作，輸入為每篇研究一列的兩臂事件數與人數（`study`、`event_exp`、`n_exp`、`event_ctrl`、`n_ctrl`）。**對照基準不是 SPSS**：參照值以 R `meta` 8.5.0、`metafor` 5.0.1 與 `rjags` 4.17（JAGS 4.3.1）在固定資料集產生，比對程式與結果見 [validation/meta](../validation/meta/)。事件數必須是非負整數；資料裡若已手動加 0.5 會被拒絕，連續性校正由程式處理。
+這四個方法由 `src/statstudio/meta.py` 獨立實作，輸入為每篇研究一列的兩臂事件數與人數（`study`、`event_exp`、`n_exp`、`event_ctrl`、`n_ctrl`）。`meta_binary` 的部分整體隨機效應欄位新增 SPSS 30 合成案例對照；其他方法保留 R `meta` 8.5.0、`metafor` 5.0.1、`rjags` 4.17（JAGS 4.3.1）或文獻參照，範圍見 [validation/meta](../validation/meta/) 與 [驗證文件](validation.md)。事件數必須是非負整數；資料裡若已手動加 0.5 會被拒絕，連續性校正由程式處理。
 
 ### 19. 統合分析（二元結果）`meta_binary`
 
 - 效應量 `measure=OR`（預設）或 `RR`，以 log 尺度合併。含零格的研究四格各加 `cc`（預設 0.5；`incr`/`method.incr="only0"` 的 meta 慣例）；兩組皆無事件或皆為事件的研究不可估計，排除於反變異數合併並列於 `details.double_zero_excluded`。
 - 共同效應：w=1/v。隨機效應：`tau2_method=DL`（DerSimonian–Laird，預設）、`REML`（有界數值最大化限制概似）、`PM`（Paule–Mandel，解 Q(τ²)=k−1）。95% CI 預設常態；另列 Hartung–Knapp 區間（t，k−1 自由度，無 ad hoc 修正，對應 meta `method.random.ci="HK"`）。
-- 異質性：Q、I²=max(0,(Q−df)/Q)、H、τ² 的 Q-profile 區間（Viechtbauer 2007）、預測區間（t，k−1 自由度，對應 meta ≥7 預設 `method.predict="V"`）。
+- 整體異質性預設 `heterogeneity_method="tau2"`：令 w_i=1/v_i、v_typical=(k−1)/(Σw_i−Σw_i²/Σw_i)，則 I²=100τ²/(τ²+v_typical)、H²=1+τ²/v_typical、H=√H²。此為本次 SPSS 隨機效應對照的定義。DL 時 H² 等於 max(1,Q/(k−1))；其他 τ² 估計法不能直接用此 Q 比值代替。`heterogeneity_method="q"` 保留舊定義 I²=max(0,(Q−df)/Q)×100、H²=Q/df、H=√H²（H 可低於 1）。k=1 時 I²/H/H² 未定義。τ² 的 Q-profile 區間（Viechtbauer 2007）維持原實作。
+- 預測區間預設 `prediction_df="k-2"`：在 log 尺度計算 θ ± t_(1−α/2,k−2)√(τ²+SE_classic²)，最後取 exp。`prediction_df="k-1"` 保留舊近似（R meta 的 `method.predict="V"`）。兩個選項皆維持至少 3 篇可估計研究的門檻；不足時端點與預測自由度為 null 並附警告。k 是實際合併數量，不能輸入任意 k。預測區間的 df 與 Q 檢定／HK 信賴區間的 k−1 分開記錄，使用的是未經 HK 調整的合併 SE。
 - Peto 共同效應 OR 與 Mantel–Haenszel 共同效應 OR（RGB 變異數）皆不用連續性校正，供稀少事件敏感度分析。
-- `subgroup`（選填）：各子群分別估 τ²（`tau.common=FALSE`），子群差異檢定為隨機效應 Q_b（df=G−1）。只有 1 篇的子群會附警告。
+- `subgroup`（選填）：各子群分別估 τ²（`tau.common=FALSE`），子群 I² 維持原本 Q-based 定義，不受整體 `heterogeneity_method` 選項影響。子群差異檢定為隨機效應 Q_b（df=G−1）。只有 1 篇的子群會附警告。
 - Egger 檢定為 y/se 對 1/se 的普通最小平方截距檢定；k<10 僅供參考。
 
 ### 20. 統合迴歸（單變量）`meta_regression`

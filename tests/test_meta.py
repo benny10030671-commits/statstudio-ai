@@ -31,7 +31,9 @@ def row(result, title, first):
 
 
 def test_meta_binary_matches_r_meta():
-    res = analyze(FIXTURE, "meta_binary", {**ROLES, "subgroup": "g"})
+    # Retain the measured R reference unchanged, explicitly selecting its
+    # earlier prediction/Q conventions instead of changing expected values.
+    res = analyze(FIXTURE, "meta_binary", {**ROLES, "subgroup": "g", "prediction_df": "k-1", "heterogeneity_method": "q"})
     est = table(res, "Study estimates")
     for r, te, se in zip(est["rows"], ORACLE["TE"], ORACLE["seTE"]):
         assert r[8] == pytest.approx(te, abs=1e-10)

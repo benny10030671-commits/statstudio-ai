@@ -8,9 +8,9 @@ a Bayesian binomial–normal hierarchical model fitted by an adaptive
 Metropolis-within-Gibbs sampler, and trial sequential analysis with
 Lan–DeMets O'Brien–Fleming-type alpha-spending boundaries.
 
-No SPSS, R or external meta-analysis code is used. Reference values for the
-validation fixtures were produced with R packages meta/metafor/rjags and are
-compared in validation/meta/compare_meta.py. Results keep float64 precision.
+No SPSS, R or external meta-analysis code is used at runtime. Reference values
+come from native SPSS 30 and R meta/metafor/rjags for the explicitly documented
+fixtures and options in validation/meta. Results keep float64 precision.
 """
 from __future__ import annotations
 
@@ -218,6 +218,26 @@ def _exp(x):
     return None if x is None else float(math.exp(x))
 
 
+def _heterogeneity(vi, tau2, q, method):
+    """Overall random-effects I²/H/H², with an explicit legacy Q convention.
+
+    SPSS uses the typical within-study variance with the fitted tau². For DL
+    this equals max(1, Q/(k-1)); for other tau² estimators it need not do so.
+    """
+    df = len(vi) - 1
+    if df <= 0:
+        return None, None, None
+    if method == "tau2":
+        w = 1 / vi
+        typical_variance = df / (np.sum(w) - np.sum(w ** 2) / np.sum(w))
+        h2 = float(1 + tau2 / typical_variance)
+        i2 = float(100 * tau2 / (tau2 + typical_variance))
+    else:  # q: preserve the earlier untruncated H and Q-based I².
+        h2 = float(q / df)
+        i2 = float(max(0.0, (q - df) / q) * 100) if q > 0 else 0.0
+    return i2, math.sqrt(h2), h2
+
+
 # ----------------------------------------------------------------------------
 # 1. meta_binary
 # ----------------------------------------------------------------------------
@@ -240,16 +260,18 @@ def meta_binary(df, o, r):
     re = _pool(yi, vi, tau2, conf)
     re_hk = _pool(yi, vi, tau2, conf, hakn=True) if k > 1 else None
     p_q = float(stats.chi2.sf(q, dfq)) if dfq > 0 else None
-    i2 = float(max(0.0, (q - dfq) / q) * 100) if q > 0 and dfq > 0 else (0.0 if dfq > 0 else None)
-    h = float(math.sqrt(q / dfq)) if dfq > 0 else None
+    i2, h, h2 = _heterogeneity(vi, tau2, q, o["heterogeneity_method"])
     t2_lo, t2_hi = _tau2_ci(yi, vi, conf)
-    # prediction interval: t with k-1 df (meta >= 7 default method.predict = "V")
+    # Prediction intervals use their own df; Q and HK confidence intervals
+    # retain k-1. k counts the estimable studies, after exclusions.
+    prediction_df = k - (2 if o["prediction_df"] == "k-2" else 1) if k >= 3 else None
     if k >= 3:
-        tcrit = stats.t.ppf((1 + conf) / 2, k - 1)
+        tcrit = stats.t.ppf((1 + conf) / 2, prediction_df)
         pse = math.sqrt(tau2 + re["se"] ** 2)
         pred = (re["estimate"] - tcrit * pse, re["estimate"] + tcrit * pse)
     else:
         pred = (None, None)
+        r["warnings"].append("可合併研究少於 3 篇，未計算預測區間；k 是排除不可估計研究後的實際數量。")
     # per-study table
     rows = []
     wfe = fe["weights"] / fe["weights"].sum() * 100
@@ -275,8 +297,8 @@ def meta_binary(df, o, r):
         if mh:
             pooled_rows.append(["Mantel–Haenszel common-effect OR (no continuity correction)", mh["k"], _exp(mh["estimate"]), _exp(mh["lower"]), _exp(mh["upper"]), mh["estimate"], mh["se"], mh["statistic"], mh["p"], "z"])
     r["tables"].append(_table("Pooled estimates", ["Model", "k", label, f"{label} lower", f"{label} upper", f"log {label}", "SE", "Test statistic", "p", "Reference distribution"], pooled_rows))
-    r["tables"].append(_table("Heterogeneity", ["tau²", "tau² lower (Q-profile)", "tau² upper (Q-profile)", "tau", "I² %", "H", "Q", "df", "p (Q)", f"Prediction interval lower ({label})", f"Prediction interval upper ({label})"],
-                              [[tau2, t2_lo, t2_hi, math.sqrt(tau2), i2, h, q, dfq, p_q, _exp(pred[0]), _exp(pred[1])]]))
+    r["tables"].append(_table("Heterogeneity", ["tau²", "tau² lower (Q-profile)", "tau² upper (Q-profile)", "tau", "I² %", "H", "Q", "df", "p (Q)", f"Prediction interval lower ({label})", f"Prediction interval upper ({label})", "H²", "Prediction interval df"],
+                              [[tau2, t2_lo, t2_hi, math.sqrt(tau2), i2, h, q, dfq, p_q, _exp(pred[0]), _exp(pred[1]), h2, prediction_df]]))
     egg = _egger(yi, vi)
     if egg:
         note = "k < 10：Egger 檢定效力不足，僅供參考" if k < 10 else ""
@@ -317,7 +339,11 @@ def meta_binary(df, o, r):
             r["warnings"].append("至少一個子群只有 1 篇研究；子群差異檢定不具參考價值。")
     r["charts"].append({"kind": "scatter", "title": "Funnel plot data (log effect vs standard error)", "x": [float(x) for x in yi], "y": [float(math.sqrt(v)) for v in vi], "x_label": f"log {label}", "y_label": "Standard error"})
     r["details"].update(k_pooled=k, k_input=len(data), measure=measure, tau2_method=o["tau2_method"], continuity_correction=incr, double_zero_excluded=[s for s, u in zip(data["study"], usable) if not u])
-    r["warnings"].append("統合分析為獨立實作；參照值以 R meta 8.5 / metafor 5.0 於固定資料集比對（見 validation/meta）。I² 與 Q 在研究數少時不穩定；子群與 Egger 檢定為探索性。")
+    r["details"].update(prediction_interval={"df_method": o["prediction_df"], "df": prediction_df,
+                                            "se": "classic random-effects pooled SE", "minimum_k": 3},
+                        heterogeneity_method=o["heterogeneity_method"],
+                        heterogeneity_definition="H²=1+tau²/v_typical; I²=100*tau²/(tau²+v_typical)" if o["heterogeneity_method"] == "tau2" else "H²=Q/(k-1), untruncated; I²=max(0,(Q-df)/Q)*100")
+    r["warnings"].append("統合分析為獨立實作；整體隨機效應的部分欄位已與 SPSS 30 合成案例比對，其他方法另有 R 參照（見 validation/meta）。這不是全部選項均等同 SPSS 的保證。I² 與 Q 在研究數少時不穩定；子群與 Egger 檢定為探索性。")
 
 
 # ----------------------------------------------------------------------------

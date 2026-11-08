@@ -1,6 +1,6 @@
 {
-  "generated_at_utc": "2026-11-08T14:38:44.681343+00:00",
-  "engine_sha256": "266515a91ad72422c54f0d08b0474c3611fc19b856c37c715107c89b6c23e83f",
+  "generated_at_utc": "2026-11-08T15:19:06.572649+00:00",
+  "engine_sha256": "6a06de9048b3825d022f260c9149f6bfd096b86c126db878af699965a2f4aa66",
   "numeric_libraries": {
     "numpy": "2.5.4",
     "pandas": "3.0.6",
@@ -196,9 +196,157 @@
   ],
   "source_report": "validation/parity-report.json",
   "non_spss_methods": {
-    "meta_binary": "R meta 8.5.0 / metafor 5.0.1 oracle on validation/meta/synthetic_oracle.json (tests/test_meta.py)",
     "meta_regression": "R metafor 5.0.1 rma(test='knha') oracle (tests/test_meta.py)",
     "bayes_meta_binary": "rjags 4.17 / JAGS 4.3.1 same-model comparison on project data; MCMC tolerance",
     "tsa_binary": "Lan–DeMets O'Brien–Fleming boundaries checked against published table values only"
+  },
+  "meta_binary_validation": {
+    "source_report": "validation/meta/spss-parity-report.json",
+    "counts": {
+      "passed": 434
+    },
+    "scope": "10 fixed synthetic cases; selected META BINARY random-effects fields only. No whole-product equivalence.",
+    "policies": {
+      "continuous": "atol=1e-9, rtol=1e-8",
+      "p_values": "atol=0, rtol=1e-7",
+      "counts_and_df": "exact",
+      "REML_solver_dependent_fields": "atol=1e-6, rtol=1e-5"
+    },
+    "engine_sha256": "6a06de9048b3825d022f260c9149f6bfd096b86c126db878af699965a2f4aa66",
+    "meta_sha256": "57c9544d3e0523040a3ef76dc643d94b4e71ce0b81a8235f9c16554ad98c58f0",
+    "tested_options": {
+      "heterogeneous_or_dl": {
+        "study": "study",
+        "event_exp": "e1",
+        "n_exp": "n1",
+        "event_ctrl": "e2",
+        "n_ctrl": "n2",
+        "measure": "OR",
+        "tau2_method": "DL",
+        "confidence": 0.95,
+        "cc": 0.5,
+        "prediction_df": "k-2",
+        "heterogeneity_method": "tau2"
+      },
+      "heterogeneous_or_reml": {
+        "study": "study",
+        "event_exp": "e1",
+        "n_exp": "n1",
+        "event_ctrl": "e2",
+        "n_ctrl": "n2",
+        "measure": "OR",
+        "tau2_method": "REML",
+        "confidence": 0.95,
+        "cc": 0.5,
+        "prediction_df": "k-2",
+        "heterogeneity_method": "tau2"
+      },
+      "low_q_or_dl": {
+        "study": "study",
+        "event_exp": "e1",
+        "n_exp": "n1",
+        "event_ctrl": "e2",
+        "n_ctrl": "n2",
+        "measure": "OR",
+        "tau2_method": "DL",
+        "confidence": 0.95,
+        "cc": 0.5,
+        "prediction_df": "k-2",
+        "heterogeneity_method": "tau2"
+      },
+      "low_q_or_reml": {
+        "study": "study",
+        "event_exp": "e1",
+        "n_exp": "n1",
+        "event_ctrl": "e2",
+        "n_ctrl": "n2",
+        "measure": "OR",
+        "tau2_method": "REML",
+        "confidence": 0.95,
+        "cc": 0.5,
+        "prediction_df": "k-2",
+        "heterogeneity_method": "tau2"
+      },
+      "heterogeneous_rr_dl": {
+        "study": "study",
+        "event_exp": "e1",
+        "n_exp": "n1",
+        "event_ctrl": "e2",
+        "n_ctrl": "n2",
+        "measure": "RR",
+        "tau2_method": "DL",
+        "confidence": 0.95,
+        "cc": 0.5,
+        "prediction_df": "k-2",
+        "heterogeneity_method": "tau2"
+      },
+      "low_q_rr_dl": {
+        "study": "study",
+        "event_exp": "e1",
+        "n_exp": "n1",
+        "event_ctrl": "e2",
+        "n_ctrl": "n2",
+        "measure": "RR",
+        "tau2_method": "DL",
+        "confidence": 0.95,
+        "cc": 0.5,
+        "prediction_df": "k-2",
+        "heterogeneity_method": "tau2"
+      },
+      "two_studies_or_dl": {
+        "study": "study",
+        "event_exp": "e1",
+        "n_exp": "n1",
+        "event_ctrl": "e2",
+        "n_ctrl": "n2",
+        "measure": "OR",
+        "tau2_method": "DL",
+        "confidence": 0.95,
+        "cc": 0.5,
+        "prediction_df": "k-2",
+        "heterogeneity_method": "tau2"
+      },
+      "three_studies_or_dl": {
+        "study": "study",
+        "event_exp": "e1",
+        "n_exp": "n1",
+        "event_ctrl": "e2",
+        "n_ctrl": "n2",
+        "measure": "OR",
+        "tau2_method": "DL",
+        "confidence": 0.95,
+        "cc": 0.5,
+        "prediction_df": "k-2",
+        "heterogeneity_method": "tau2"
+      },
+      "double_zero_or_dl": {
+        "study": "study",
+        "event_exp": "e1",
+        "n_exp": "n1",
+        "event_ctrl": "e2",
+        "n_ctrl": "n2",
+        "measure": "OR",
+        "tau2_method": "DL",
+        "confidence": 0.95,
+        "cc": 0.5,
+        "prediction_df": "k-2",
+        "heterogeneity_method": "tau2"
+      },
+      "confidence90_or_dl": {
+        "study": "study",
+        "event_exp": "e1",
+        "n_exp": "n1",
+        "event_ctrl": "e2",
+        "n_ctrl": "n2",
+        "measure": "OR",
+        "tau2_method": "DL",
+        "confidence": 0.9,
+        "cc": 0.5,
+        "prediction_df": "k-2",
+        "heterogeneity_method": "tau2"
+      }
+    },
+    "legacy_r_reference": "validation/meta/synthetic_oracle.json; prediction_df=k-1, heterogeneity_method=q",
+    "limitations": "No claim for untested estimators, HK/truncated-HK prediction intervals, subgroup/bias defaults, all missing/zero rules, or whole SPSS factory defaults."
   }
 }

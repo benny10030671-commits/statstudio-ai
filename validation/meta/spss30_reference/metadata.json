@@ -1,0 +1,470 @@
+{
+  "generated_at_utc": "2026-11-08T15:10:57.230543+00:00",
+  "synthetic_data_only": true,
+  "spss_version": "30.0",
+  "python": "3.10.4 (tags/v3.10.4:9d38120, Mar 23 2022, 23:13:41) [MSC v.1929 64 bit (AMD64)]",
+  "engine_sha256": "9094ae0ba4addda87c7ca1ff75ef16633341e9950592aefe2813cb12862ce52e",
+  "fixture_sha256": "9ceae0a97cacc20e0fe0080c098f20fb18eec25068ebdc2aaac01d6c94f7d1f5",
+  "cases": [
+    {
+      "id": "heterogeneous_or_dl",
+      "options": {
+        "measure": "OR",
+        "tau2_method": "DL",
+        "confidence": 0.95
+      },
+      "input_rows": [
+        [
+          "S1",
+          12,
+          100,
+          18,
+          98
+        ],
+        [
+          "S2",
+          3,
+          40,
+          5,
+          42
+        ],
+        [
+          "S3",
+          0,
+          30,
+          2,
+          31
+        ],
+        [
+          "S4",
+          45,
+          500,
+          40,
+          490
+        ],
+        [
+          "S5",
+          8,
+          60,
+          19,
+          58
+        ],
+        [
+          "S6",
+          10,
+          150,
+          35,
+          148
+        ]
+      ],
+      "error_level": 0,
+      "message": "No error.",
+      "output_sha256": "c16639bdd67d1d1d7179ad375fad04aeb2d06a5795537b529bbd1fe48517c751"
+    },
+    {
+      "id": "heterogeneous_or_reml",
+      "options": {
+        "measure": "OR",
+        "tau2_method": "REML",
+        "confidence": 0.95
+      },
+      "input_rows": [
+        [
+          "S1",
+          12,
+          100,
+          18,
+          98
+        ],
+        [
+          "S2",
+          3,
+          40,
+          5,
+          42
+        ],
+        [
+          "S3",
+          0,
+          30,
+          2,
+          31
+        ],
+        [
+          "S4",
+          45,
+          500,
+          40,
+          490
+        ],
+        [
+          "S5",
+          8,
+          60,
+          19,
+          58
+        ],
+        [
+          "S6",
+          10,
+          150,
+          35,
+          148
+        ]
+      ],
+      "error_level": 0,
+      "message": "No error.",
+      "output_sha256": "425ba1c31cbf36609a6372b0d643a857f6dbd0b604ad2e392a2fb092a6057700"
+    },
+    {
+      "id": "low_q_or_dl",
+      "options": {
+        "measure": "OR",
+        "tau2_method": "DL",
+        "confidence": 0.95
+      },
+      "input_rows": [
+        [
+          "L1",
+          10,
+          100,
+          11,
+          100
+        ],
+        [
+          "L2",
+          12,
+          100,
+          13,
+          100
+        ],
+        [
+          "L3",
+          13,
+          100,
+          12,
+          100
+        ],
+        [
+          "L4",
+          8,
+          100,
+          9,
+          100
+        ]
+      ],
+      "error_level": 0,
+      "message": "No error.",
+      "output_sha256": "39caf7a2c68f73cb4dfe7a8632ebaa92bbcec1aebb52a1924348ef3f02bd4061"
+    },
+    {
+      "id": "low_q_or_reml",
+      "options": {
+        "measure": "OR",
+        "tau2_method": "REML",
+        "confidence": 0.95
+      },
+      "input_rows": [
+        [
+          "L1",
+          10,
+          100,
+          11,
+          100
+        ],
+        [
+          "L2",
+          12,
+          100,
+          13,
+          100
+        ],
+        [
+          "L3",
+          13,
+          100,
+          12,
+          100
+        ],
+        [
+          "L4",
+          8,
+          100,
+          9,
+          100
+        ]
+      ],
+      "error_level": 0,
+      "message": "No error.",
+      "output_sha256": "905821023e6b96e9f6418bd301f49d90252397b87a64540d0a9c8a93fce81b25"
+    },
+    {
+      "id": "heterogeneous_rr_dl",
+      "options": {
+        "measure": "RR",
+        "tau2_method": "DL",
+        "confidence": 0.95
+      },
+      "input_rows": [
+        [
+          "S1",
+          12,
+          100,
+          18,
+          98
+        ],
+        [
+          "S2",
+          3,
+          40,
+          5,
+          42
+        ],
+        [
+          "S3",
+          0,
+          30,
+          2,
+          31
+        ],
+        [
+          "S4",
+          45,
+          500,
+          40,
+          490
+        ],
+        [
+          "S5",
+          8,
+          60,
+          19,
+          58
+        ],
+        [
+          "S6",
+          10,
+          150,
+          35,
+          148
+        ]
+      ],
+      "error_level": 0,
+      "message": "No error.",
+      "output_sha256": "8c981a9b2107bec9ab5ffc5008f8c2bd7a6f975acbd3411b27f365cead225fe8"
+    },
+    {
+      "id": "low_q_rr_dl",
+      "options": {
+        "measure": "RR",
+        "tau2_method": "DL",
+        "confidence": 0.95
+      },
+      "input_rows": [
+        [
+          "L1",
+          10,
+          100,
+          11,
+          100
+        ],
+        [
+          "L2",
+          12,
+          100,
+          13,
+          100
+        ],
+        [
+          "L3",
+          13,
+          100,
+          12,
+          100
+        ],
+        [
+          "L4",
+          8,
+          100,
+          9,
+          100
+        ]
+      ],
+      "error_level": 0,
+      "message": "No error.",
+      "output_sha256": "307c769fdb4248fda5ff44c40dbc48d4ed9ce4cfab94655da7649378165a0079"
+    },
+    {
+      "id": "two_studies_or_dl",
+      "options": {
+        "measure": "OR",
+        "tau2_method": "DL",
+        "confidence": 0.95
+      },
+      "input_rows": [
+        [
+          "S1",
+          12,
+          100,
+          18,
+          98
+        ],
+        [
+          "S2",
+          3,
+          40,
+          5,
+          42
+        ]
+      ],
+      "error_level": 2,
+      "message": "Warning.",
+      "output_sha256": "c508c5bc8e453e27acad671f50c83c263b7364bd14a3b8e5cb42c61ed36211cf"
+    },
+    {
+      "id": "three_studies_or_dl",
+      "options": {
+        "measure": "OR",
+        "tau2_method": "DL",
+        "confidence": 0.95
+      },
+      "input_rows": [
+        [
+          "S1",
+          12,
+          100,
+          18,
+          98
+        ],
+        [
+          "S2",
+          3,
+          40,
+          5,
+          42
+        ],
+        [
+          "S3",
+          0,
+          30,
+          2,
+          31
+        ]
+      ],
+      "error_level": 0,
+      "message": "No error.",
+      "output_sha256": "63bc0ddbdf8c10724337daa2b6583d2bb4e3e2d123c43cdbbb007bbb331337a3"
+    },
+    {
+      "id": "double_zero_or_dl",
+      "options": {
+        "measure": "OR",
+        "tau2_method": "DL",
+        "confidence": 0.95
+      },
+      "input_rows": [
+        [
+          "S1",
+          12,
+          100,
+          18,
+          98
+        ],
+        [
+          "S2",
+          3,
+          40,
+          5,
+          42
+        ],
+        [
+          "S3",
+          0,
+          30,
+          0,
+          31
+        ],
+        [
+          "S4",
+          45,
+          500,
+          40,
+          490
+        ],
+        [
+          "S5",
+          8,
+          60,
+          19,
+          58
+        ],
+        [
+          "S6",
+          10,
+          150,
+          35,
+          148
+        ]
+      ],
+      "error_level": 0,
+      "message": "No error.",
+      "output_sha256": "4338ca7d492ae137f1955c7e941ad89041487e71ccb64cf26647357a508fe3b4"
+    },
+    {
+      "id": "confidence90_or_dl",
+      "options": {
+        "measure": "OR",
+        "tau2_method": "DL",
+        "confidence": 0.9
+      },
+      "input_rows": [
+        [
+          "S1",
+          12,
+          100,
+          18,
+          98
+        ],
+        [
+          "S2",
+          3,
+          40,
+          5,
+          42
+        ],
+        [
+          "S3",
+          0,
+          30,
+          2,
+          31
+        ],
+        [
+          "S4",
+          45,
+          500,
+          40,
+          490
+        ],
+        [
+          "S5",
+          8,
+          60,
+          19,
+          58
+        ],
+        [
+          "S6",
+          10,
+          150,
+          35,
+          148
+        ]
+      ],
+      "error_level": 0,
+      "message": "No error.",
+      "output_sha256": "87407486d5b1011b2fa48517a120d8ca83ab3bb44d6f51158623b96604d5a0f0"
+    }
+  ],
+  "ok": true
+}

@@ -2,3 +2,4 @@
 * -text whitespace=cr-at-eol
 # Oracle files are original evidence; their whitespace must remain untouched.
 validation/spss30/** -whitespace
+validation/meta/spss30_reference/** -whitespace

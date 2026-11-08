@@ -104,6 +104,39 @@ python validation/compare.py
 
 Oracle 程式只接受兩個內建合成 fixture 名稱，會啟動並停止自己的引擎。`.sps` 內的 OMS 目的路徑記錄原始環境的絕對位置；跨機時用產生程式重新建立正確路徑，不應直接執行仍指向舊電腦的輸出位置。重建前先保留既有基準，變更 SPSS build 或資料雜湊後應作新的比較與審查。
 
-## 統合分析方法的對照（非 SPSS）
+## 統合分析保留的 R／文獻參照
 
-`meta_binary`、`meta_regression`、`bayes_meta_binary`、`tsa_binary` 不以 SPSS 為基準。`validation/meta/synthetic_oracle.R` 以 R meta 8.5.0 / metafor 5.0.1 對 6 篇合成研究產生參照值（`synthetic_oracle.json`），`tests/test_meta.py` 逐欄比對：研究 log OR 與 SE、共同／隨機效應估計與 CI、Hartung–Knapp、τ²（DL／REML／PM）、I²、Q、預測區間、τ² Q-profile 區間、Peto、MH、Egger、子群估計與 Q_b、統合迴歸（REML+Knapp–Hartung、DL+z）。連續數值容差 1e-8 相對／1e-9 絕對（REML τ² 1e-6，因兩邊最佳化停止準則不同）。貝氏模型以 rjags 相同模型在實際資料集比對後驗中位數與可信區間（容忍 MCMC 誤差），記錄於使用該引擎的研究專案。TSA 邊界只與文獻表值比對，未與 TSA 軟體逐欄比對。
+`validation/meta/synthetic_oracle.R` 以 R meta 8.5.0 / metafor 5.0.1 對 6 篇合成研究產生參照值（`synthetic_oracle.json`），`tests/test_meta.py` 逐欄比對：研究 log OR 與 SE、共同／隨機效應估計與 CI、Hartung–Knapp、τ²（DL／REML／PM）、I²、Q、預測區間、τ² Q-profile 區間、Peto、MH、Egger、子群估計與 Q_b、統合迴歸（REML+Knapp–Hartung、DL+z）。原生 R 參照值完整保留，R 比對測試明確選取 `prediction_df="k-1"`、`heterogeneity_method="q"` 以重現舊設定。一般連續欄位採測試列出的 1e-8 相對／1e-9 絕對容差；最佳化及 Q-profile 欄位使用各測試原有容差，未為這次改動調寬。貝氏模型以 rjags 相同模型在實際資料集比對後驗中位數與可信區間（容忍 MCMC 誤差），記錄於使用該引擎的研究專案。TSA 邊界只與文獻表值比對，未與 TSA 軟體逐欄比對。
+
+## 統合分析的 SPSS 30 對照（2026-11-08）
+
+新增 `meta_binary` 的有限範圍對照：**10 個合成案例、434 個選定數值欄位通過，0 個失敗**。此數量與前述 18 種方法的 1,244 欄位分開保存。測試不需要 SPSS，原生 oracle 由另行授權的 SPSS 30.0 執行。引擎 SHA-256 為 `9094ae0ba4addda87c7ca1ff75ef16633341e9950592aefe2813cb12862ce52e`。
+
+修改前完整測試 71 項通過；修改後完整測試 **93 項通過**。原有 18 種方法的 1,244 個數值比對重新執行後仍全數通過，R 原始參照及 SPSS 原始期望值未改寫。
+
+- [固定合成資料](../validation/meta/spss_cases.py)、[原生語法](../validation/meta/spss30_reference/commands.sps)、[執行及雜湊紀錄](../validation/meta/spss30_reference/metadata.json)、同目錄 10 份原始 OXML。
+- [逐欄比較程式](../validation/meta/compare_spss.py)、[修改後報告](../validation/meta/spss-parity-report.json)、[修改前報告](../validation/meta/spss-parity-before-settings.json)。原始 409 通過／25 差異的紀錄保留；修正的是預測區間和 I²/H² 定義，預期值沒有被引擎結果覆寫。
+- [回歸測試](../tests/test_meta_spss.py) 依表格、研究順序與欄位身分核對，另外檢查來源雜湊、欄位數、原始期望值保存、選項契約、缺失及雙零排除後的 k、k=1/2 未定義區間，以及 Q 與 HK 自由度未改變。
+
+案例包含高異質性、低 Q（τ²=0）、單零與雙零事件、k=2、k=3、OR／RR、DL／REML、90%／95% CI。固定設定為 `MODEL=RANDOM`、`ADJUSTSE=NONE`、`ZEROCOUNTS=ONLY ADD=.5 DROP=TRUE`，REML 使用 `MAXITER=1000 CONVERGENCE=1E-10`。本次對照欄位包括 k、研究及合併 log 效應／SE／效應量／CI、合併 Z／p、隨機效應權重、Q／df／p、τ²、I²、H²、預測區間。
+
+連續欄位通過條件為 `abs(error) <= 1e-9 + 1e-8*abs(expected)`；p 值為 `abs(error) <= 1e-7*abs(expected)`；k 與 Q df 精確相等。REML 最佳化相關欄位採預先指定的 `1e-6 + 1e-5*abs(expected)`，因兩邊使用不同最佳化與停止規則。容差在修改前報告即已固定。這是數值容差內相符，不是逐位相同。
+
+新預設的預測區間採 t(k−2)，舊的 t(k−1) 仍可明確選用；兩者是不同近似，不代表所有檢定應統一減二。整體 H² 採 `1+τ²/v_typical`，I² 採 `100τ²/(τ²+v_typical)`。例如高異質性 REML 案例的 SPSS H² 約 2.77535，不能用 Q/(k−1) 約 3.19445 替代。
+
+**尚未驗證／未變更：** SPSS 的原廠 REML 預設、其他估計法（包括本工具 PM）、所有零格修正選項、HK／截斷 HK 的預測區間、子群／Egger 的 SPSS 預設、權重與 user-missing、極端資料、圖形版面及其他 SPSS 版本。Q-profile、子群與 Egger 保留原實作及 R 參照，並非此次新增的 SPSS 驗證範圍。Bayesian 與 TSA 不會因這次設定變更而成為 SPSS 分析。首次 oracle 驅動在建立資料集前執行 WEIGHT OFF 而失敗；正式產生器已改為先建立資料集，以上參照只來自其成功執行。
+
+重跑已保存的對照（不需 SPSS）：
+
+```powershell
+python validation/meta/compare_spss.py
+python -m pytest tests/test_meta_spss.py tests/test_meta.py -q
+```
+
+需要重建 oracle 時，使用另行授權的 SPSS 及一個新的空輸出目錄，保留既有參照再審查差異：
+
+```powershell
+& 'C:\Program Files\IBM\SPSS Statistics\Python3\python.exe' validation/meta/run_spss_oracle.py --output validation/meta/spss30_new
+```
+
+方法參考：[IBM META BINARY 語法與預設值](https://www.ibm.com/docs/en/spss-statistics/30.0.0?topic=reference-meta-binary)、[R meta 預測區間方法 V 與 HTS](https://github.com/cran/meta/blob/master/R/meta-package.R)、[metafor 作者對 τ²-based I²／H² 的說明](https://www.metafor-project.org/doku.php/faq)。

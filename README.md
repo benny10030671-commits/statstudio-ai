@@ -39,10 +39,32 @@
 | 基本統計 | 描述統計、次數分配、交叉表／卡方、單樣本／独立樣本／配對 t 檢定、單因子 ANOVA、Pearson／Spearman／Kendall 相關 |
 | 建模與量表 | 線性迴歸、二元 logistic、PCA、主軸因素分析、Cronbach α |
 | 群集／無母數 | K-means、階層式群集、Mann–Whitney、Wilcoxon、Kruskal–Wallis |
-| 統合分析（二元結果） | 反變異數共同／隨機效應（DL／REML／PM）、Hartung–Knapp、預測區間、Peto／MH、子群、Egger；單變量統合迴歸（Knapp–Hartung）；貝氏二項–常態階層模型（MCMC）；試驗序列分析（Lan–DeMets O'Brien–Fleming）。對照基準為 R meta／metafor／rjags，不是 SPSS |
+| 統合分析（二元結果） | 反變異數共同／隨機效應（DL／REML／PM）、Hartung–Knapp、預測區間、Peto／MH、子群、Egger；單變量統合迴歸（Knapp–Hartung）；貝氏二項–常態階層模型（MCMC）；試驗序列分析（Lan–DeMets O'Brien–Fleming）。整體隨機效應部分欄位有 SPSS 30 合成資料對照，其他方法另有 R／文獻參照，範圍見驗證文件 |
 | 輸出 | 結果表、直方圖／散布圖／長條圖、完整精度 JSON、含 SVG 圖的獨立 HTML |
 
 未支援的選項會報錯，不會默默忽略。尚未涵蓋 GLM 多因子／重複量數、混合模型、存活分析、時間序列、複雜抽樣、多重插補、Bootstrap、全部事後比較、加權、SPSS 語法相容解析器及 SPV 原生輸出。獨立介面與報表不是 SPSS Viewer 的版面複製品。
+
+## 統合分析的 SPSS 設定（2026-11-08）
+
+`meta-analysis` 分支的 `meta_binary` 現在預設採用本次 SPSS 30 對照設定：
+
+- `prediction_df="k-2"`：預測區間使用 t(k−2)。**Q 檢定及 Hartung–Knapp 合併效果信賴區間仍使用 k−1**，沒有全部改成 k−2。k 為排除缺失及不可估計研究後實際納入合併的數量；少於 3 篇時不提供預測區間。
+- `heterogeneity_method="tau2"`：整體隨機效應 I²／H² 依估計的 τ² 及典型研究內變異數計算；H² ≥ 1。輸出同時列出 H、H² 及預測區間自由度，避免混用。
+- `tau2_method="DL"`、一般合併 CI 的 z 近似、額外的未截斷 Hartung–Knapp CI、單零研究加 0.5、雙零研究排除，維持本研究已在 SPSS 明確指定的設定。這不是改成 SPSS 的所有原廠預設值（例如 IBM 的 τ² 原廠預設為 REML）。
+
+要重現修改前的預測區間與整體異質性定義，明確指定：
+
+```python
+result = analyze(df, "meta_binary", {
+    **roles,
+    "prediction_df": "k-1",
+    "heterogeneity_method": "q",
+})
+```
+
+舊的 k−1 預測區間是另一種近似方法，不是計算錯誤；新預設是為了對齊此次 SPSS 報告。434 個原生 SPSS 數值欄位在 10 個合成案例下通過比較，並保存修改前的 25 個差異。詳見 [驗證範圍](docs/validation.md#統合分析的-spss-30-對照2026-11-08) 與 [逐欄報告](validation/meta/spss-parity-report.json)。
+
+程式仍由獨立引擎運算。設定與 SPSS 對齊不代表結果由 SPSS 產生；論文軟體名稱應依實際執行方式記載。既有結果檔不會自動改寫，需重新執行分析才會使用新預設。
 
 ## 資料與重現性
 
