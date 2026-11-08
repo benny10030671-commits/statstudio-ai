@@ -140,3 +140,7 @@ python -m pytest tests/test_meta_spss.py tests/test_meta.py -q
 ```
 
 方法參考：[IBM META BINARY 語法與預設值](https://www.ibm.com/docs/en/spss-statistics/30.0.0?topic=reference-meta-binary)、[R meta 預測區間方法 V 與 HTS](https://github.com/cran/meta/blob/master/R/meta-package.R)、[metafor 作者對 τ²-based I²／H² 的說明](https://www.metafor-project.org/doku.php/faq)。
+
+## R 後端方法（`*_r`）與 RTSA 對照
+
+`meta_binary_r`、`meta_regression_r`、`bayes_meta_binary_r`、`tsa_binary_r` 直接由 R meta／metafor、rjags＋JAGS、RTSA 計算（`src/statstudio/r/meta_backend.R`），因此本身就是參照軟體的輸出；`tests/test_r_backend.py` 在 R 可用時檢查它們與 Python 方法一致（以 Python 的 `prediction_df = "k-1"`、`heterogeneity_method = "q"` 對照 R meta 的慣例；統計量容差 1e-9～1e-7、貝氏在 MC 誤差內、TSA 邊界 0.02）。Python 的 `tsa_binary` 另在實際研究資料上與 RTSA 0.2.2 比對累積 Z、D²、RIS 與邊界（邊界差 < 0.01；RTSA 把資訊分數很小的邊界標為 20，相鄰很近的分析時點合併）。沒有 R 時這些測試自動略過。

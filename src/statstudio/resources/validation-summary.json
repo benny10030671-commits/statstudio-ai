@@ -1,6 +1,6 @@
 {
-  "generated_at_utc": "2026-11-08T15:19:06.572649+00:00",
-  "engine_sha256": "6a06de9048b3825d022f260c9149f6bfd096b86c126db878af699965a2f4aa66",
+  "generated_at_utc": "2026-11-08T16:06:53.740041+00:00",
+  "engine_sha256": "c36bd8d472ffc4b19d9eed2c0f2c4850728ec94d141b4a84660d32b04b183b04",
   "numeric_libraries": {
     "numpy": "2.5.4",
     "pandas": "3.0.6",
@@ -198,7 +198,11 @@
   "non_spss_methods": {
     "meta_regression": "R metafor 5.0.1 rma(test='knha') oracle (tests/test_meta.py)",
     "bayes_meta_binary": "rjags 4.17 / JAGS 4.3.1 same-model comparison on project data; MCMC tolerance",
-    "tsa_binary": "Lan–DeMets O'Brien–Fleming boundaries checked against published table values only"
+    "tsa_binary": "Lan–DeMets O'Brien–Fleming boundaries checked against published table values and against RTSA 0.2.2 on project data",
+    "meta_binary_r": "Computed by R meta/metafor (reference software itself); tests/test_r_backend.py checks agreement with meta_binary (prediction_df=k-1, heterogeneity_method=q)",
+    "meta_regression_r": "Computed by R metafor rma(); tests/test_r_backend.py checks agreement with meta_regression",
+    "bayes_meta_binary_r": "Computed by R rjags / JAGS; tests/test_r_backend.py checks agreement with bayes_meta_binary within Monte Carlo error",
+    "tsa_binary_r": "Computed by R RTSA (TSA software, R version); tests/test_r_backend.py checks agreement with tsa_binary"
   },
   "meta_binary_validation": {
     "source_report": "validation/meta/spss-parity-report.json",

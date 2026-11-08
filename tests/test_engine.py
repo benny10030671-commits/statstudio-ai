@@ -206,6 +206,9 @@ def test_all_methods_have_rectangular_json_tables_and_do_not_mutate_input():
         "meta_binary": {**counts, "subgroup": "year"}, "meta_regression": {**counts, "moderator": "year"},
         "bayes_meta_binary": {**counts, "iterations": 1000, "burnin": 200, "chains": 2},
         "tsa_binary": {**counts, "order": "year", "rrr": 0.2},
+        "meta_binary_r": {**counts, "subgroup": "year"}, "meta_regression_r": {**counts, "moderator": "year"},
+        "bayes_meta_binary_r": {**counts, "iterations": 1000, "burnin": 200, "chains": 2},
+        "tsa_binary_r": {**counts, "order": "year", "rrr": 0.2},
         "descriptive": {"variables": ["v0", "v1"]}, "frequencies": {"variables": ["g"]},
         "crosstabs": {"x": "g", "y": "bin"}, "ttest_one": {"variables": ["v0"]},
         "ttest_independent": {"variables": ["v0"], "group": "g"}, "ttest_paired": {"x": "v0", "y": "v1"},
@@ -219,7 +222,10 @@ def test_all_methods_have_rectangular_json_tables_and_do_not_mutate_input():
         "wilcoxon": {"x": "v0", "y": "v1"}, "kruskal": {"x": "v0", "group": "g"},
     }
     assert set(configs) == {m["id"] for m in METHODS}
+    from statstudio import r_backend
     for method, options in configs.items():
+        if method.endswith("_r") and not r_backend.available():
+            continue  # R backend is optional; tests/test_r_backend.py covers it when R is installed
         result = analyze(df, method, options)
         assert result["tables"], method
         assert result["details"]["parity_status"] == "unverified"

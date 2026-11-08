@@ -18,6 +18,8 @@ def main():
     sub.add_parser('mcp', help='執行 MCP stdio 服務')
     sub.add_parser('install-mcp', help='在 Codex 登錄這個 Python 環境的 MCP 服務')
     sub.add_parser('mcp-config', help='顯示可手動貼入 Codex 的 MCP 設定')
+    sub.add_parser('check-r', help='檢查 R 後端（meta、metafor、rjags/JAGS、RTSA）是否可用')
+    sub.add_parser('install-r-packages', help='用 Rscript 安裝 R 後端需要的套件（JAGS 需另行安裝）')
     args = parser.parse_args()
     if args.command == 'serve':
         if args.open:
@@ -43,6 +45,16 @@ def main():
     elif args.command == 'mcp':
         from .mcp_server import build_mcp
         build_mcp().run(transport='stdio')
+    elif args.command == 'check-r':
+        from . import r_backend
+        print(json.dumps(r_backend.environment(refresh=True), ensure_ascii=False, indent=2))
+    elif args.command == 'install-r-packages':
+        from . import r_backend
+        rscript = r_backend.find_rscript()
+        if not rscript:
+            parser.exit(1, '找不到 Rscript。' + r_backend.INSTALL_HINT + '\n')
+        subprocess.run([rscript, str(r_backend.R_DIR / 'install_packages.R')], check=False)
+        print(json.dumps(r_backend.environment(refresh=True), ensure_ascii=False, indent=2))
     elif args.command == 'mcp-config':
         print('[mcp_servers.statstudio]\ncommand = ' + json.dumps(sys.executable) + '\nargs = ["-m", "statstudio", "mcp"]\nstartup_timeout_sec = 60\ntool_timeout_sec = 300')
     elif args.command == 'install-mcp':

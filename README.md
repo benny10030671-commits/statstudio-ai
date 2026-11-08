@@ -40,6 +40,7 @@
 | 建模與量表 | 線性迴歸、二元 logistic、PCA、主軸因素分析、Cronbach α |
 | 群集／無母數 | K-means、階層式群集、Mann–Whitney、Wilcoxon、Kruskal–Wallis |
 | 統合分析（二元結果） | 反變異數共同／隨機效應（DL／REML／PM）、Hartung–Knapp、預測區間、Peto／MH、子群、Egger；單變量統合迴歸（Knapp–Hartung）；貝氏二項–常態階層模型（MCMC）；試驗序列分析（Lan–DeMets O'Brien–Fleming）。整體隨機效應部分欄位有 SPSS 30 合成資料對照，其他方法另有 R／文獻參照，範圍見驗證文件 |
+| 統合分析 R 後端（`*_r`） | 同樣四個方法改由 R 計算：`meta_binary_r`（meta／metafor）、`meta_regression_r`（metafor）、`bayes_meta_binary_r`（rjags＋JAGS）、`tsa_binary_r`（RTSA）。表格格式相同，`details.software` 記錄版本，可直接寫進論文 Methods |
 | 輸出 | 結果表、直方圖／散布圖／長條圖、完整精度 JSON、含 SVG 圖的獨立 HTML |
 
 未支援的選項會報錯，不會默默忽略。尚未涵蓋 GLM 多因子／重複量數、混合模型、存活分析、時間序列、複雜抽樣、多重插補、Bootstrap、全部事後比較、加權、SPSS 語法相容解析器及 SPV 原生輸出。獨立介面與報表不是 SPSS Viewer 的版面複製品。
@@ -65,6 +66,17 @@ result = analyze(df, "meta_binary", {
 舊的 k−1 預測區間是另一種近似方法，不是計算錯誤；新預設是為了對齊此次 SPSS 報告。434 個原生 SPSS 數值欄位在 10 個合成案例下通過比較，並保存修改前的 25 個差異。詳見 [驗證範圍](docs/validation.md#統合分析的-spss-30-對照2026-11-08) 與 [逐欄報告](validation/meta/spss-parity-report.json)。
 
 程式仍由獨立引擎運算。設定與 SPSS 對齊不代表結果由 SPSS 產生；論文軟體名稱應依實際執行方式記載。既有結果檔不會自動改寫，需重新執行分析才會使用新預設。
+
+## R 後端（論文用的公認軟體）
+
+統合分析若要在論文寫「以 R 套件計算」，請用結尾為 `_r` 的方法。它們由 `Rscript` 執行 `src/statstudio/r/meta_backend.R`，計算完全交給 **meta 8.5／metafor 5.0、rjags 4.17＋JAGS 4.3、RTSA 0.2**，Python 只負責驗證輸入與整理表格。R meta 的預測區間預設為 `method.predict = "V"`（t，k−1 自由度），`prediction_df = "k-2"` 時改用 `"HTS"`；I²／H² 沿用 meta 的 Q 定義，與 Python 方法的 SPSS 慣例不同，`details` 會註明。
+
+1. 安裝 R 4.x（https://cloud.r-project.org）與 JAGS 4.x（https://mcmc-jags.sourceforge.io）。
+2. 執行 `.venv\Scripts\python.exe -m statstudio install-r-packages`（`setup.cmd` 偵測到 Rscript 時會自動做）。
+3. `.venv\Scripts\python.exe -m statstudio check-r` 應顯示 `"available": true` 與各套件版本；MCP 的 `get_r_environment` 回傳同一份資訊。
+4. 在網頁或 MCP 選 `meta_binary_r`、`meta_regression_r`、`bayes_meta_binary_r`、`tsa_binary_r`。沒有 R 時這些方法會明確報錯並附安裝提示，不會偷偷改用 Python 引擎。
+
+Methods 可寫：*Analyses were performed in R (version) with meta (version) and metafor (version); Bayesian models with rjags (version)/JAGS (version); trial sequential analysis with RTSA (version).* 版本以 `details.software` 為準。`Rscript` 不在 PATH 時設定環境變數 `STATSTUDIO_RSCRIPT`。
 
 ## 資料與重現性
 

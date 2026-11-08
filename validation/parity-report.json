@@ -1,6 +1,6 @@
 {
-  "generated_at_utc": "2026-11-08T15:19:06.572649+00:00",
-  "engine_sha256": "6a06de9048b3825d022f260c9149f6bfd096b86c126db878af699965a2f4aa66",
+  "generated_at_utc": "2026-11-08T16:06:53.740041+00:00",
+  "engine_sha256": "c36bd8d472ffc4b19d9eed2c0f2c4850728ec94d141b4a84660d32b04b183b04",
   "numeric_libraries": {
     "numpy": "2.5.4",
     "pandas": "3.0.6",

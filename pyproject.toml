@@ -24,7 +24,7 @@ statstudio = "statstudio.__main__:main"
 where = ["src"]
 
 [tool.setuptools.package-data]
-statstudio = ["static/*", "resources/*"]
+statstudio = ["static/*", "resources/*", "r/*"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

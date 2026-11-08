@@ -182,3 +182,14 @@ Mann–Whitney 近似分布的校正定義見 [SciPy 官方 API](https://docs.sc
 ### 22. 試驗序列分析（二元結果）`tsa_binary`
 
 依 `order` 欄位（選填）排序後逐篇累積隨機效應（DL）合併，計算累積 Z；兩組皆零（或皆全）事件的研究不納入序列分析，也不計入累積資訊量（TSA 軟體／RTSA 慣例）。所需資訊量 RIS = 4(z_{1−α/2}+z_{1−β})² p̄(1−p̄)/(p_c−p_e)²，再除以 (1−D²)，D² = 1 − V_FE/V_RE（Wetterslev 2009）。對照組事件比例預設取自資料、相對風險下降 `rrr` 預設由合併估計轉換（屬事後假設，請同時提供預設值）。監測邊界為 Lan–DeMets α-spending、O'Brien–Fleming 型（每側 α/2：α*(t)=2−2Φ(z_{1−α/4}/√t)，ldbounds／TSA 慣例），以 Brownian motion 尺度的遞迴數值積分求得（格點 0.005）；spending 函數以 survival function 計算，當單次 α 增量 < 1e-8（資訊分數約 < 0.05）時改用閉式第一次分析公式 z = Φ⁻¹(1 − inc/2)（前幾次分析的拒絕機率可忽略），邊界不設上限。只計算效益／危害邊界，未實作無效邊界。等距五次分析的邊界與文獻表值（4.877、3.357、2.680、2.290、2.031）差異 <0.01。
+
+## R 後端（23）`meta_binary_r`／`meta_regression_r`／`bayes_meta_binary_r`／`tsa_binary_r`
+
+這四個方法不用 Python 計算，而是由 `src/statstudio/r_backend.py` 把驗證過的輸入寫成 JSON，呼叫 `Rscript src/statstudio/r/meta_backend.R`，再把 R 的結果併回相同的表格格式。適用於要在論文 Methods 寫明「以 R 套件計算」的情境；`details.software` 記錄實際版本（R、meta、metafor、rjags、JAGS、RTSA）。
+
+- `meta_binary_r`：`meta::metabin(sm, method = "Inverse", method.tau = DL/REML/PM, method.random.ci = "classic"/"HK", incr = cc, method.incr = "only0", prediction = TRUE)`；τ² Q-profile 區間用 `metafor::confint(rma())`；Peto／MH 用 `metabin(method = "Peto"/"MH", MH.exact = TRUE)`；Egger 用 `metabias(method.bias = "Egger")`；子群用 `subgroup =`、`tau.common = FALSE`。
+- `meta_regression_r`：`metafor::escalc(add = cc, to = "only0")` 後 `rma(mods = ~ x, method = REML/DL, test = "knha"/"z", control = list(threshold = 1e-12))`。
+- `bayes_meta_binary_r`：rjags 相同的二項–常態階層模型（`dbin`、`logit`、`dnorm`、half-normal 截斷），`n.adapt = burnin`、`coda.samples(n.iter = iterations)`；R̂ 用 `coda::gelman.diag`、ESS 用 `coda::effectiveSize`；DIC 以研究層級參數為焦點（Dbar − D(θ̄)），與 Python 定義相同。
+- `tsa_binary_r`：`RTSA::RTSA(type = "analysis", outcome = "OR", weights = "IV", re_method = "DL", es_alpha = "esOF", futility = "none", random_adj = "D2", power_adj = FALSE, zero_adj = 0.5)`；預期效應以 OR 形式傳入（由 RRR 與對照組事件比例換算）；RTSA 會合併相鄰很近的分析時點並把資訊分數很小的邊界標為 20（本工具顯示為空值）；兩組皆零事件的研究整個排除。`boundary_curve` 以 `RTSA::boundaries()` 在 0.05–1 的格點計算供繪圖。
+
+R 不存在或套件不全時，這些方法回傳明確錯誤與安裝提示，不會偷偷改用 Python 引擎。`python -m statstudio check-r` 顯示環境；`python -m statstudio install-r-packages` 安裝套件（JAGS 需另行安裝）。

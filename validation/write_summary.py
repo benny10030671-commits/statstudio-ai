@@ -18,7 +18,11 @@ summary["tested_options"] = {case["method"]: case["options"] for case in report[
 summary["non_spss_methods"] = {
     "meta_regression": "R metafor 5.0.1 rma(test='knha') oracle (tests/test_meta.py)",
     "bayes_meta_binary": "rjags 4.17 / JAGS 4.3.1 same-model comparison on project data; MCMC tolerance",
-    "tsa_binary": "Lan–DeMets O'Brien–Fleming boundaries checked against published table values only",
+    "tsa_binary": "Lan–DeMets O'Brien–Fleming boundaries checked against published table values and against RTSA 0.2.2 on project data",
+    "meta_binary_r": "Computed by R meta/metafor (reference software itself); tests/test_r_backend.py checks agreement with meta_binary (prediction_df=k-1, heterogeneity_method=q)",
+    "meta_regression_r": "Computed by R metafor rma(); tests/test_r_backend.py checks agreement with meta_regression",
+    "bayes_meta_binary_r": "Computed by R rjags / JAGS; tests/test_r_backend.py checks agreement with bayes_meta_binary within Monte Carlo error",
+    "tsa_binary_r": "Computed by R RTSA (TSA software, R version); tests/test_r_backend.py checks agreement with tsa_binary",
 }
 meta_path = ROOT / 'validation/meta/spss-parity-report.json'
 if meta_path.is_file():
