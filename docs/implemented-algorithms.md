@@ -176,8 +176,8 @@ Mann–Whitney 近似分布的校正定義見 [SciPy 官方 API](https://docs.sc
 
 ### 21. 貝氏統合分析（二元結果）`bayes_meta_binary`
 
-二項–常態階層模型：r₀ᵢ~Bin(p₀ᵢ,n₀ᵢ)、r₁ᵢ~Bin(p₁ᵢ,n₁ᵢ)、logit p₀ᵢ=μᵢ、logit p₁ᵢ=μᵢ+δᵢ、δᵢ~N(d,τ²)。先驗預設 d~N(0, `prior_effect_sd`²=1)、τ~half-normal(`prior_tau_scale`=0.5)、μᵢ~N(0, `prior_baseline_sd`²=10²)；`model=fixed` 時 δᵢ≡d。取樣器為向量化的 adaptive Metropolis-within-Gibbs（μᵢ、δᵢ 隨機漫步、d 共軛 Gibbs、log τ 隨機漫步），暖身期每 50 次調整步長至接受率約 0.44。輸出後驗中位數／平均／SD／可信區間、OR<1、<0.9、<0.8、>1 的機率、新研究預測 OR、split-R̂ 與 ESS、DIC（Spiegelhalter 2002）以及各研究收縮估計。兩組皆零事件的研究仍納入。先驗為弱資訊性，應以敏感度分析檢視。
+二項–常態階層模型：r₀ᵢ~Bin(p₀ᵢ,n₀ᵢ)、r₁ᵢ~Bin(p₁ᵢ,n₁ᵢ)、logit p₀ᵢ=μᵢ、logit p₁ᵢ=μᵢ+δᵢ、δᵢ~N(d,τ²)。先驗預設 d~N(0, `prior_effect_sd`²=1)、τ~half-normal(`prior_tau_scale`=0.5)、μᵢ~N(0, `prior_baseline_sd`²=10²)；`model=fixed` 時 δᵢ≡d。取樣器為向量化的 adaptive Metropolis-within-Gibbs（μᵢ、δᵢ 隨機漫步、d 共軛 Gibbs、log τ 隨機漫步），暖身期每 50 次調整步長至接受率約 0.44。輸出後驗中位數／平均／SD／可信區間、OR<1、<0.9、<0.8、>1 的機率、新研究預測 OR、split-R̂ 與 ESS（Geyer initial positive sequence 估計，原始尺度、未做 rank normalization）、conditional DIC（以研究層級參數 μᵢ、δᵢ 為焦點；Spiegelhalter 2002）以及各研究收縮估計。新研究預測 OR 為新研究的真實 OR，不含其抽樣誤差。兩組皆零事件的研究仍納入。先驗為弱資訊性，應以敏感度分析檢視。
 
 ### 22. 試驗序列分析（二元結果）`tsa_binary`
 
-依 `order` 欄位（選填）排序後逐篇累積隨機效應（DL）合併，計算累積 Z。所需資訊量 RIS = 4(z_{1−α/2}+z_{1−β})² p̄(1−p̄)/(p_c−p_e)²，再除以 (1−D²)，D² = 1 − V_FE/V_RE（Wetterslev 2009）。對照組事件比例預設取自資料、相對風險下降 `rrr` 預設由合併估計轉換（屬事後假設，請同時提供預設值）。監測邊界為 Lan–DeMets α-spending、O'Brien–Fleming 型（每側 α/2：α*(t)=2−2Φ(z_{1−α/4}/√t)，ldbounds／TSA 慣例），以 Brownian motion 尺度的遞迴數值積分求得（格點 0.005），只計算效益／危害邊界，未實作無效邊界。等距五次分析的邊界與文獻表值（4.877、3.357、2.680、2.290、2.031）差異 <0.01。
+依 `order` 欄位（選填）排序後逐篇累積隨機效應（DL）合併，計算累積 Z。所需資訊量 RIS = 4(z_{1−α/2}+z_{1−β})² p̄(1−p̄)/(p_c−p_e)²，再除以 (1−D²)，D² = 1 − V_FE/V_RE（Wetterslev 2009）。對照組事件比例預設取自資料、相對風險下降 `rrr` 預設由合併估計轉換（屬事後假設，請同時提供預設值）。監測邊界為 Lan–DeMets α-spending、O'Brien–Fleming 型（每側 α/2：α*(t)=2−2Φ(z_{1−α/4}/√t)，ldbounds／TSA 慣例），以 Brownian motion 尺度的遞迴數值積分求得（格點 0.005）；spending 函數以 survival function 計算，當單次 α 增量 < 1e-8（資訊分數約 < 0.05）時改用閉式第一次分析公式 z = Φ⁻¹(1 − inc/2)（前幾次分析的拒絕機率可忽略），邊界不設上限。只計算效益／危害邊界，未實作無效邊界。等距五次分析的邊界與文獻表值（4.877、3.357、2.680、2.290、2.031）差異 <0.01。

@@ -553,7 +553,7 @@ def bayes_meta_binary(df, o, r):
         rows.append(["tau (between-study SD, log OR)"] + summ(draws_tau) + [rh_t, ess_t])
         pred = np.exp(draws_d + rng.normal(0, 1, draws_d.size) * draws_tau)
         rows.append(["Predicted OR in a new study"] + summ(pred) + [None, None])
-    r["tables"].append(_table("Posterior summary", ["Parameter", "Median", "Mean", "SD", f"{lo_q:g}%", f"{hi_q:g}%", "R-hat (split)", "ESS (bulk)"], rows))
+    r["tables"].append(_table("Posterior summary", ["Parameter", "Median", "Mean", "SD", f"{lo_q:g}%", f"{hi_q:g}%", "R-hat (split)", "ESS (Geyer IPS)"], rows))
     thresholds = [1.0, 0.9, 0.8, 0.75]
     r["tables"].append(_table("Posterior probabilities", ["Statement", "Probability"],
                               [[f"OR < {t:g}", float(np.mean(ors < t))] for t in thresholds] + [["OR > 1 (harm)", float(np.mean(ors > 1))], ["OR > 1.1", float(np.mean(ors > 1.1))]]))
@@ -587,7 +587,8 @@ def _obf_spending(t, alpha):
     (the ldbounds / TSA convention): alpha_side*(t) = 2 - 2*Phi(z_{1-alpha/4}/sqrt(t)).
     """
     t = np.clip(t, 1e-9, 1.0)
-    return 4 * (1 - stats.norm.cdf(stats.norm.ppf(1 - alpha / 4) / np.sqrt(t)))
+    # survival function keeps precision for very small information fractions (1 - cdf underflows to 0 for t < ~0.05)
+    return 4 * stats.norm.sf(stats.norm.ppf(1 - alpha / 4) / np.sqrt(t))
 
 
 def lan_demets_boundaries(info_fractions, alpha=0.05, grid=0.005, zmax=12.0):
@@ -595,6 +596,10 @@ def lan_demets_boundaries(info_fractions, alpha=0.05, grid=0.005, zmax=12.0):
 
     Works on the Brownian-motion scale S(t)=Z(t)*sqrt(t); increments independent.
     Returns Z-scale boundaries for each information fraction (values > 1 spend all alpha at 1).
+    When the alpha increment at a look is below 1e-8 (information fraction roughly < 0.05) the
+    numerical grid cannot resolve the tail, so the closed-form first-look expression
+    z = Phi^-1(1 - inc/2) is used; the rejection mass of earlier looks is negligible there.
+    Boundaries are returned unclamped (they can exceed 8 at very small fractions).
     """
     t = np.asarray(info_fractions, float)
     bounds = []
@@ -609,10 +614,7 @@ def lan_demets_boundaries(info_fractions, alpha=0.05, grid=0.005, zmax=12.0):
             # first look: S ~ N(0, t)
             sd = math.sqrt(tj_eff)
             g = stats.norm.pdf(s, 0, sd)
-            if inc <= 0:
-                c = zmax * math.sqrt(tj_eff)
-            else:
-                c = stats.norm.ppf(1 - inc / 2) * sd
+            c = sd * (stats.norm.isf(inc / 2) if inc > 0 else 38.0)
         else:
             dt = tj_eff - prev_t
             if dt <= 1e-12:
@@ -625,8 +627,8 @@ def lan_demets_boundaries(info_fractions, alpha=0.05, grid=0.005, zmax=12.0):
             g = (kern * g[inside][None, :]).sum(axis=1) * grid
             cum = np.cumsum(g) * grid
             total = cum[-1]
-            if inc <= 0 or total <= 0:
-                c = zmax * math.sqrt(tj_eff)
+            if inc < 1e-8 or total <= 0:
+                c = math.sqrt(tj_eff) * (stats.norm.isf(inc / 2) if inc > 0 else 38.0)
             else:
                 # find c with mass outside |s|>c equal to inc (symmetric density → use upper tail inc/2)
                 tail = total - cum  # mass above s
@@ -639,7 +641,7 @@ def lan_demets_boundaries(info_fractions, alpha=0.05, grid=0.005, zmax=12.0):
                 c = max(c, 0.0)
         bounds.append(c / math.sqrt(tj_eff))
         prev_t, prev_c, prev_spent = tj_eff, c, spent
-    return [float(min(b, zmax)) if b is not None else None for b in bounds]
+    return [float(b) if b is not None else None for b in bounds]
 
 
 def tsa_binary(df, o, r):

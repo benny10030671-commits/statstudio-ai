@@ -165,3 +165,17 @@ def test_tsa_binary_contract():
     assert z["rows"][-1][1] == int((FIXTURE["n1"] + FIXTURE["n2"]).sum())
     assert all(r[7] is None or r[7] >= 1.9 for r in z["rows"])
     json.dumps(res, allow_nan=False)
+
+
+def test_lan_demets_small_information_fractions():
+    """Very small information fractions must give finite, monotone boundaries from the closed form, not a clamp."""
+    from scipy import stats as _st
+    import math as _m
+    a = _st.norm.ppf(1 - 0.05 / 4)
+    fr = [0.0039, 0.0045, 0.0422, 0.1012, 0.3452]
+    b = lan_demets_boundaries(fr, alpha=0.05)
+    exact = [float(_st.norm.isf(2 * _st.norm.sf(a / _m.sqrt(t)))) for t in fr]
+    assert abs(b[0] - exact[0]) < 1e-6
+    assert abs(b[2] - exact[2]) < 1e-3          # earlier looks spend ~1e-280, so the first-look form is exact
+    assert all(x > 8 for x in b[:3]) and all(b[i] > b[i + 1] for i in range(len(b) - 1))
+    assert 3.4 < b[-1] < 3.9 and b[-1] < exact[-1]  # alpha already spent at earlier looks lowers the final boundary slightly
