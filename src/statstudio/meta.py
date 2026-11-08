@@ -682,24 +682,26 @@ def tsa_binary(df, o, r):
     ris_fixed = 4 * (za + zb) ** 2 * pbar * (1 - pbar) / (pc - pe) ** 2
     ris = ris_fixed / (1 - d2) if d2 < 1 else float("inf")
     # cumulative meta-analysis
-    rows, fracs = [], []
+    # Studies without an estimable log OR (no events, or all events, in both arms) are excluded from the
+    # sequential analysis altogether -- they add neither to the Z curve nor to the accrued information.
+    # This is the convention of the TSA software / RTSA (zero-event trials are dropped).
+    rows, fracs, excluded = [], [], []
     cum_n = 0
     cum_idx = []
     for i in range(len(data)):
+        if not usable[i]:
+            excluded.append(str(data.loc[i, "study"]))
+            continue
         cum_n += int(data.loc[i, "n1"] + data.loc[i, "n2"])
-        if usable[i]:
-            cum_idx.append(i)
-        if len(cum_idx) >= 1:
-            ys, vs = yi[cum_idx], vi[cum_idx]
-            if len(cum_idx) >= 2:
-                t2c, _, _ = _tau2(ys, vs, o["tau2_method"])
-            else:
-                t2c = 0.0
-            pc_ = _pool(ys, vs, t2c, 0.95)
-            z = pc_["estimate"] / pc_["se"]
-            est = (math.exp(pc_["estimate"]), math.exp(pc_["lower"]), math.exp(pc_["upper"]))
+        cum_idx.append(i)
+        ys, vs = yi[cum_idx], vi[cum_idx]
+        if len(cum_idx) >= 2:
+            t2c, _, _ = _tau2(ys, vs, o["tau2_method"])
         else:
-            z, est = None, (None, None, None)
+            t2c = 0.0
+        pc_ = _pool(ys, vs, t2c, 0.95)
+        z = pc_["estimate"] / pc_["se"]
+        est = (math.exp(pc_["estimate"]), math.exp(pc_["lower"]), math.exp(pc_["upper"]))
         frac = cum_n / ris if math.isfinite(ris) else 0.0
         fracs.append(frac)
         rows.append([data.loc[i, "study"], cum_n, frac, est[0], est[1], est[2], z])
@@ -712,5 +714,7 @@ def tsa_binary(df, o, r):
     r["tables"].append(_table("Required information size", ["Control event proportion", "Anticipated RRR", "RRR source", "Intervention event proportion", "alpha (two-sided)", "power", "RIS (no heterogeneity adjustment)", "D² (diversity)", "Diversity-adjusted RIS", "Accrued participants", "Accrued / RIS", "tau²", "I² %"],
                               [[pc, rrr, rrr_source, pe, alpha, power, ris_fixed, d2, ris, cum_n, cum_n / ris if math.isfinite(ris) else None, tau2, float(max(0.0, (q - dfq) / q) * 100) if q > 0 and dfq > 0 else 0.0]]))
     r["tables"].append(_table("Cumulative Z-curve", ["Study added", "Cumulative N", "Information fraction", "Cumulative OR", "Lower 95% CI", "Upper 95% CI", "Cumulative Z", "O'Brien–Fleming boundary (Lan–DeMets)", "Crossed monitoring boundary", "Conventional |Z| ≥ z(alpha/2)"], out))
-    r["details"].update(k=len(data), boundary="Lan–DeMets alpha-spending, O'Brien–Fleming-type, two-sided, efficacy/harm only (no futility boundaries)", ris=ris, d2=d2)
+    r["details"].update(k=len(data), k_analysed=len(cum_idx), excluded_studies=excluded, boundary="Lan–DeMets alpha-spending, O'Brien–Fleming-type, two-sided, efficacy/harm only (no futility boundaries)", ris=ris, d2=d2)
+    if excluded:
+        r["warnings"].append("TSA 排除兩組皆零（或皆全）事件的研究：" + "、".join(excluded) + "（與 TSA 軟體／RTSA 慣例一致，不計入累積資訊量）。")
     r["warnings"].append("TSA 只計算效益／危害監測邊界，未計算無效邊界；RRR 若取自合併估計屬事後假設，請同時報告預設 RRR 的結果。")

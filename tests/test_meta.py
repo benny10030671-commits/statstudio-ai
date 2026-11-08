@@ -179,3 +179,14 @@ def test_lan_demets_small_information_fractions():
     assert abs(b[2] - exact[2]) < 1e-3          # earlier looks spend ~1e-280, so the first-look form is exact
     assert all(x > 8 for x in b[:3]) and all(b[i] > b[i + 1] for i in range(len(b) - 1))
     assert 3.4 < b[-1] < 3.9 and b[-1] < exact[-1]  # alpha already spent at earlier looks lowers the final boundary slightly
+
+
+def test_tsa_excludes_double_zero_study_from_information():
+    """A double-zero study contributes neither to the Z curve nor to the accrued participants (TSA software convention)."""
+    df = pd.DataFrame({"study": ["A", "B", "C"], "year": [2015, 2019, 2024], "e1": [42, 0, 68], "n1": [236, 33, 1759], "e2": [47, 0, 68], "n2": [235, 32, 1752]})
+    roles = {"study": "study", "event_exp": "e1", "n_exp": "n1", "event_ctrl": "e2", "n_ctrl": "n2"}
+    res = analyze(df, "tsa_binary", {**roles, "order": "year", "rrr": 0.2})
+    zc = next(t for t in res["tables"] if t["title"] == "Cumulative Z-curve")
+    assert [r[0] for r in zc["rows"]] == ["A", "C"]
+    assert zc["rows"][-1][1] == 236 + 235 + 1759 + 1752
+    assert res["details"]["excluded_studies"] == ["B"] and res["details"]["k_analysed"] == 2
